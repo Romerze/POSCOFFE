@@ -9,6 +9,7 @@ build/
 out/
 .next/
 .turbo/
+*.tsbuildinfo
 
 # Environment
 .env
@@ -29,6 +30,9 @@ pnpm-debug.log*
 .DS_Store
 Thumbs.db
 *.swp
+
+# Claude Code local settings
+.claude/
 
 # Testing / coverage
 coverage/

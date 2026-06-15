@@ -8,9 +8,9 @@ POSCOFFE no es un POS tradicional que solo registra ventas e imprime tickets. Es
 
 ## Estado del proyecto
 
-> 🟡 **Fase actual: Diseño y documentación.** Aún no hay código de aplicación; se está construyendo la propuesta técnica y de producto que guiará la implementación.
+> 🟢 **Fase 0 (Fundaciones) completa.** Monorepo operativo con: API NestJS + Prisma (auth JWT/PIN + RBAC), esquema de datos completo y migración inicial, y app de caja (React PWA offline-first) con login. Siguiente: **Fase 1 (MVP operativo)**.
 
-Todos los commits y el proceso completo se versionan en este repositorio.
+Todos los commits y el proceso completo se versionan en este repositorio. Para correr el proyecto, ver [DEVELOPMENT.md](DEVELOPMENT.md).
 
 ---
 
