@@ -4,7 +4,7 @@ import { Prisma } from '@prisma/client';
 import { randomUUID } from 'node:crypto';
 import { PrismaService } from '../prisma/prisma.service';
 import { StockService, type StockMovementInput } from '../inventory/stock.service';
-import { EVENTS } from '../common/events';
+import { EVENTS, type OrderPaidPayload } from '../common/events';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { CancelOrderDto, CreatePaymentDto } from './dto/payment.dto';
 import { priceOrder } from './order-pricing';
@@ -142,7 +142,7 @@ export class OrdersService {
     if (!pedido) throw new NotFoundException('Pedido no encontrado');
     if (pedido.estado === 'cancelado') throw new BadRequestException('Pedido cancelado');
 
-    return this.prisma.pago.create({
+    const pago = await this.prisma.pago.create({
       data: {
         pedidoId: id,
         metodo: dto.metodo,
@@ -153,6 +153,17 @@ export class OrdersService {
         estado: 'aprobado',
       },
     });
+
+    // Acreditar puntos de fidelización si el pedido tiene cliente.
+    if (pedido.clienteId) {
+      const payload: OrderPaidPayload = {
+        clienteId: pedido.clienteId,
+        pedidoId: id,
+        monto: dto.monto,
+      };
+      this.events.emit(EVENTS.ORDER_PAID, payload);
+    }
+    return pago;
   }
 
   /** Cancela un pedido y reincorpora el stock descontado por la venta. */
