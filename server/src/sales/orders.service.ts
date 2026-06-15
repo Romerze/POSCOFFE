@@ -5,6 +5,7 @@ import { randomUUID } from 'node:crypto';
 import { PrismaService } from '../prisma/prisma.service';
 import { StockService, type StockMovementInput } from '../inventory/stock.service';
 import { EVENTS, type OrderPaidPayload } from '../common/events';
+import { PromotionsService } from '../promotions/promotions.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { CancelOrderDto, CreatePaymentDto } from './dto/payment.dto';
 import { priceOrder } from './order-pricing';
@@ -20,6 +21,7 @@ export class OrdersService {
     private readonly prisma: PrismaService,
     private readonly stock: StockService,
     private readonly events: EventEmitter2,
+    private readonly promotions: PromotionsService,
   ) {}
 
   getOrder(id: string) {
@@ -73,7 +75,16 @@ export class OrdersService {
     // ── Cálculo de líneas, totales y deltas de stock (lógica pura) ──
     const { subtotal, detalles: detallesData, stockDeltas } = priceOrder(dto.items, varMap, modMap);
 
-    const descuento = new Prisma.Decimal(0); // promociones llegan en Fase 2
+    // Promociones dinámicas: evalúa el carrito y aplica el mejor descuento.
+    const promo = await this.promotions.evaluateForCart(
+      dto.localId,
+      detallesData.map((d) => ({
+        varianteId: d.varianteId,
+        cantidad: d.cantidad,
+        precioUnit: d.precioUnit.toNumber(),
+      })),
+    );
+    const descuento = new Prisma.Decimal(promo.descuento);
     const total = subtotal.sub(descuento);
 
     const movements: StockMovementInput[] = [...stockDeltas.entries()].map(([insumoId, delta]) => ({
