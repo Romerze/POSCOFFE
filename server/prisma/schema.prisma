@@ -117,9 +117,26 @@ model Variante {
   producto Producto @relation(fields: [productoId], references: [id], onDelete: Cascade)
   receta   Receta[]
   detalles DetallePedido[]
+  // Si es combo: sus componentes. Y dónde se usa esta variante como componente.
+  comboComponentes ComboComponente[] @relation("ComboPadre")
+  enCombos         ComboComponente[] @relation("ComboHijo")
 
   @@index([productoId])
   @@map("variante")
+}
+
+model ComboComponente {
+  id              String @id @default(uuid())
+  comboVarianteId String @map("combo_variante_id")
+  varianteId      String @map("variante_id")
+  cantidad        Int    @default(1)
+
+  comboVariante Variante @relation("ComboPadre", fields: [comboVarianteId], references: [id], onDelete: Cascade)
+  variante      Variante @relation("ComboHijo", fields: [varianteId], references: [id])
+
+  @@unique([comboVarianteId, varianteId])
+  @@index([comboVarianteId])
+  @@map("combo_componente")
 }
 
 model ModificadorGrupo {

@@ -8,7 +8,8 @@ import { EVENTS, type OrderPaidPayload } from '../common/events';
 import { PromotionsService } from '../promotions/promotions.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { CancelOrderDto, CreatePaymentDto } from './dto/payment.dto';
-import { priceOrder } from './order-pricing';
+import { priceOrder, type VarianteForPricing } from './order-pricing';
+import { combineRecipes } from '../catalog/combo';
 
 const orderInclude = {
   detalles: { include: { modificadores: true, variante: true } },
@@ -52,9 +53,28 @@ export class OrdersService {
     const varianteIds = dto.items.map((i) => i.varianteId);
     const variantes = await this.prisma.variante.findMany({
       where: { id: { in: varianteIds } },
-      include: { receta: true },
+      include: {
+        receta: true,
+        producto: { select: { esCombo: true } },
+        comboComponentes: { include: { variante: { include: { receta: true } } } },
+      },
     });
-    const varMap = new Map(variantes.map((v) => [v.id, v]));
+    // Para combos, la receta efectiva es la suma de las recetas de sus componentes.
+    const varMap = new Map<string, VarianteForPricing>(
+      variantes.map((v) => {
+        let receta = v.receta.map((r) => ({ insumoId: r.insumoId, cantidad: r.cantidad }));
+        if (v.producto.esCombo && v.comboComponentes.length > 0) {
+          const combinado = combineRecipes(
+            v.comboComponentes.map((c) => ({
+              cantidad: c.cantidad,
+              receta: c.variante.receta.map((r) => ({ insumoId: r.insumoId, cantidad: r.cantidad })),
+            })),
+          );
+          receta = [...combinado.entries()].map(([insumoId, cantidad]) => ({ insumoId, cantidad }));
+        }
+        return [v.id, { id: v.id, precio: v.precio, receta }];
+      }),
+    );
 
     const modIds = [...new Set(dto.items.flatMap((i) => i.modificadorIds ?? []))];
     const modificadores = modIds.length

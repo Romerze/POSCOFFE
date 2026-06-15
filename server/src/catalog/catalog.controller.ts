@@ -2,6 +2,7 @@ import { Body, Controller, Get, Param, Patch, Post, Put, Query } from '@nestjs/c
 import { PERMISSIONS } from '@poscoffe/types';
 import { RequirePermissions } from '../common/decorators/roles.decorator';
 import { CatalogService } from './catalog.service';
+import { SetComboComponentesDto } from './dto/combo.dto';
 import { CreateCategoriaDto, UpdateCategoriaDto } from './dto/categoria.dto';
 import {
   CreateModificadorDto,
@@ -82,6 +83,24 @@ export class CatalogController {
   @RequirePermissions(MANAGE)
   setReceta(@Param('id') id: string, @Body() items: SetRecetaItemDto[]) {
     return this.catalog.setReceta(id, items);
+  }
+
+  // Combos
+  @Get('variantes/:id/combo')
+  getCombo(@Param('id') id: string) {
+    return this.catalog.getCombo(id);
+  }
+
+  @Put('variantes/:id/combo')
+  @RequirePermissions(MANAGE)
+  setCombo(@Param('id') id: string, @Body() dto: SetComboComponentesDto) {
+    return this.catalog.setComboComponentes(id, dto.items);
+  }
+
+  // Upselling
+  @Get('variantes/:id/upsell')
+  upsell(@Param('id') id: string, @Query('local') localId: string) {
+    return this.catalog.upsell(id, localId);
   }
 
   // Modificadores
