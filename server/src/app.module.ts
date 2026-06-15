@@ -6,6 +6,7 @@ import { AuthModule } from './auth/auth.module';
 import { LocalsModule } from './locals/locals.module';
 import { CatalogModule } from './catalog/catalog.module';
 import { InventoryModule } from './inventory/inventory.module';
+import { SalesModule } from './sales/sales.module';
 import { HealthModule } from './health/health.module';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { RolesGuard } from './common/guards/roles.guard';
@@ -18,6 +19,7 @@ import { RolesGuard } from './common/guards/roles.guard';
     LocalsModule,
     CatalogModule,
     InventoryModule,
+    SalesModule,
     HealthModule,
   ],
   providers: [
