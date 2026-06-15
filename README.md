@@ -8,7 +8,13 @@ POSCOFFE no es un POS tradicional que solo registra ventas e imprime tickets. Es
 
 ## Estado del proyecto
 
-> 🟢 **Fase 1 (MVP operativo) en curso — núcleo completo.** Sobre las fundaciones de Fase 0, el backend ya cubre: catálogo + recetas + costeo, inventario por deltas, ventas con descuento de stock, KDS en tiempo real (WebSockets), turnos/caja con reporte Z y fidelización con puntos automáticos. El frontend incluye la **pantalla de caja** (catálogo, personalización, ticket y cobro). Pendiente: verificación end-to-end contra Postgres y refinamientos (promos, devoluciones).
+> 🟢 **Fase 1 completa + Fase 2 en curso (verificado contra Postgres).**
+>
+> **Fase 1 (MVP):** catálogo + recetas + costeo, inventario por deltas, ventas con descuento de stock, KDS en tiempo real (WebSockets), turnos/caja con reporte Z, fidelización con puntos automáticos, y pantalla de caja.
+>
+> **Fase 2 (diferenciadores):** motor de **promociones dinámicas** (%, monto, hora valle, NxM), **dashboard e inteligencia** (KPIs, mapa de calor, predicción de quiebres, ranking, márgenes), **recomendador "tu café ideal" + segmentación RFM/VIP**, **pedidos por QR / pick-up** (menú público), y promos + identificación de cliente en la caja.
+>
+> Pendiente: suscripciones, combos, gamificación, panel admin de catálogo (frontend), facturación fiscal.
 
 Todos los commits y el proceso completo se versionan en este repositorio. Para correr el proyecto, ver [DEVELOPMENT.md](DEVELOPMENT.md).
 
