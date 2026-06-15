@@ -5,6 +5,7 @@ import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
 import { LocalsModule } from './locals/locals.module';
 import { CatalogModule } from './catalog/catalog.module';
+import { InventoryModule } from './inventory/inventory.module';
 import { HealthModule } from './health/health.module';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { RolesGuard } from './common/guards/roles.guard';
@@ -16,6 +17,7 @@ import { RolesGuard } from './common/guards/roles.guard';
     AuthModule,
     LocalsModule,
     CatalogModule,
+    InventoryModule,
     HealthModule,
   ],
   providers: [
