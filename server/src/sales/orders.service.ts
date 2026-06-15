@@ -41,7 +41,7 @@ export class OrdersService {
    * Crea un pedido de forma idempotente (operationId) y descuenta el stock
    * por receta de cada ítem y de sus modificadores. Todo en una transacción.
    */
-  async createOrder(dto: CreateOrderDto, usuarioId: string) {
+  async createOrder(dto: CreateOrderDto, usuarioId: string | null) {
     // Idempotencia: si ya se sincronizó esta operación, devolver el pedido existente.
     const existing = await this.prisma.pedido.findUnique({
       where: { operationId: dto.operationId },

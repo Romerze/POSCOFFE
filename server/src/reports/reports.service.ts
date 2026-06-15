@@ -107,20 +107,22 @@ export class ReportsService {
   async rankingPersonal(localId: string, days = 30) {
     const grupos = await this.prisma.pedido.groupBy({
       by: ['usuarioId'],
-      where: { localId, estado: { not: 'cancelado' }, creadoEn: { gte: daysAgo(days) } },
+      // Excluye pedidos sin operador (QR/pick-up) del ranking de personal.
+      where: { localId, estado: { not: 'cancelado' }, usuarioId: { not: null }, creadoEn: { gte: daysAgo(days) } },
       _count: true,
       _sum: { total: true },
       _avg: { total: true },
       orderBy: { _sum: { total: 'desc' } },
     });
+    const ids = grupos.map((g) => g.usuarioId).filter((id): id is string => id !== null);
     const usuarios = await this.prisma.usuario.findMany({
-      where: { id: { in: grupos.map((g) => g.usuarioId) } },
+      where: { id: { in: ids } },
       select: { id: true, nombre: true },
     });
     const umap = new Map(usuarios.map((u) => [u.id, u.nombre]));
     return grupos.map((g) => ({
       usuarioId: g.usuarioId,
-      nombre: umap.get(g.usuarioId) ?? g.usuarioId,
+      nombre: (g.usuarioId && umap.get(g.usuarioId)) || g.usuarioId || '—',
       pedidos: g._count,
       ventas: g._sum.total ?? D(0),
       ticketPromedio: g._avg.total ?? D(0),

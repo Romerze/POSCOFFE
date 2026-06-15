@@ -6,6 +6,6 @@ import { CostingService } from './costing.service';
 @Module({
   controllers: [CatalogController],
   providers: [CatalogService, CostingService],
-  exports: [CostingService],
+  exports: [CostingService, CatalogService],
 })
 export class CatalogModule {}

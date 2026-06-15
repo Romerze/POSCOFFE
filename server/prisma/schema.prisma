@@ -294,7 +294,7 @@ model Pedido {
   operationId String   @unique @map("operation_id") // idempotencia de sync
   localId     String   @map("local_id")
   clienteId   String?  @map("cliente_id")
-  usuarioId   String   @map("usuario_id")
+  usuarioId   String?  @map("usuario_id") // null = pedido por QR/pickup (sin operador)
   canal       String // mostrador | qr | pickup | delivery
   mesa        String?
   estado      String   @default("pendiente")
@@ -305,7 +305,7 @@ model Pedido {
 
   local    Local           @relation(fields: [localId], references: [id])
   cliente  Cliente?        @relation(fields: [clienteId], references: [id])
-  usuario  Usuario         @relation(fields: [usuarioId], references: [id])
+  usuario  Usuario?        @relation(fields: [usuarioId], references: [id])
   detalles DetallePedido[]
   pagos    Pago[]
   consumosSuscripcion ConsumoSuscripcion[]
