@@ -9,6 +9,7 @@ import { CatalogModule } from './catalog/catalog.module';
 import { InventoryModule } from './inventory/inventory.module';
 import { SalesModule } from './sales/sales.module';
 import { KdsModule } from './kds/kds.module';
+import { CashModule } from './cash/cash.module';
 import { HealthModule } from './health/health.module';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { RolesGuard } from './common/guards/roles.guard';
@@ -24,6 +25,7 @@ import { RolesGuard } from './common/guards/roles.guard';
     InventoryModule,
     SalesModule,
     KdsModule,
+    CashModule,
     HealthModule,
   ],
   providers: [
