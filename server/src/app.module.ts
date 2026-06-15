@@ -12,6 +12,7 @@ import { KdsModule } from './kds/kds.module';
 import { CashModule } from './cash/cash.module';
 import { CustomersModule } from './customers/customers.module';
 import { PromotionsModule } from './promotions/promotions.module';
+import { ReportsModule } from './reports/reports.module';
 import { HealthModule } from './health/health.module';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { RolesGuard } from './common/guards/roles.guard';
@@ -30,6 +31,7 @@ import { RolesGuard } from './common/guards/roles.guard';
     CashModule,
     CustomersModule,
     PromotionsModule,
+    ReportsModule,
     HealthModule,
   ],
   providers: [
