@@ -65,6 +65,7 @@ model Usuario {
   turnos       Turno[]
   reposiciones Reposicion[]
   mermas       Merma[]
+  devoluciones Devolucion[]
 
   @@index([localId])
   @@map("usuario")
@@ -310,6 +311,7 @@ model Pedido {
   pagos    Pago[]
   consumosSuscripcion ConsumoSuscripcion[]
   movPuntos MovimientoPuntos[]
+  devoluciones Devolucion[]
 
   @@index([localId, creadoEn])
   @@map("pedido")
@@ -327,6 +329,7 @@ model DetallePedido {
   pedido       Pedido               @relation(fields: [pedidoId], references: [id], onDelete: Cascade)
   variante     Variante             @relation(fields: [varianteId], references: [id])
   modificadores DetalleModificador[]
+  devoluciones DevolucionDetalle[]
 
   @@index([pedidoId])
   @@map("detalle_pedido")
@@ -518,4 +521,38 @@ model MovimientoCaja {
   @@index([cajaId])
   @@index([turnoId])
   @@map("movimiento_caja")
+}
+
+// ─────────────────────────────── Devoluciones ─────────────────────────────
+
+model Devolucion {
+  id               String   @id @default(uuid())
+  pedidoId         String   @map("pedido_id")
+  usuarioId        String   @map("usuario_id")
+  turnoId          String?  @map("turno_id")
+  motivo           String
+  monto            Decimal  @db.Decimal(10, 2)
+  reincorporaStock Boolean  @default(false) @map("reincorpora_stock")
+  total            Boolean  @default(false) // true = devolución total
+  fecha            DateTime @default(now())
+
+  pedido   Pedido              @relation(fields: [pedidoId], references: [id])
+  usuario  Usuario             @relation(fields: [usuarioId], references: [id])
+  detalles DevolucionDetalle[]
+
+  @@index([pedidoId])
+  @@map("devolucion")
+}
+
+model DevolucionDetalle {
+  id              String @id @default(uuid())
+  devolucionId    String @map("devolucion_id")
+  detallePedidoId String @map("detalle_pedido_id")
+  cantidad        Int
+
+  devolucion    Devolucion    @relation(fields: [devolucionId], references: [id], onDelete: Cascade)
+  detallePedido DetallePedido @relation(fields: [detallePedidoId], references: [id])
+
+  @@index([devolucionId])
+  @@map("devolucion_detalle")
 }

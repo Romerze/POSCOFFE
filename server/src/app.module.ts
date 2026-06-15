@@ -15,6 +15,7 @@ import { PromotionsModule } from './promotions/promotions.module';
 import { ReportsModule } from './reports/reports.module';
 import { QrModule } from './qr/qr.module';
 import { SubscriptionsModule } from './subscriptions/subscriptions.module';
+import { RefundsModule } from './refunds/refunds.module';
 import { HealthModule } from './health/health.module';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { RolesGuard } from './common/guards/roles.guard';
@@ -36,6 +37,7 @@ import { RolesGuard } from './common/guards/roles.guard';
     ReportsModule,
     QrModule,
     SubscriptionsModule,
+    RefundsModule,
     HealthModule,
   ],
   providers: [
