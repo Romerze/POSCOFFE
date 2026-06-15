@@ -2,28 +2,19 @@ import { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import type { PaymentMethod } from '@poscoffe/types';
 import { api } from '../lib/api';
-import { useAuth } from '../store/auth';
 import { useCart } from '../store/cart';
-import { OfflineBadge } from '../components/OfflineBadge';
+import { useLocalId } from '../hooks/useLocalId';
 import { ProductModal } from '../components/ProductModal';
 import { Ticket } from '../components/Ticket';
 import { CustomerBar } from '../components/CustomerBar';
 import type { Producto } from '../types';
 
 export function CashierScreen() {
-  const { user, logout } = useAuth();
   const cart = useCart();
+  const localId = useLocalId();
   const [openProductId, setOpenProductId] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
   const [cobrando, setCobrando] = useState(false);
-
-  // Local efectivo: el del usuario o el primero disponible (dueño multi-local).
-  const { data: locals } = useQuery({
-    queryKey: ['locals'],
-    queryFn: api.listLocals,
-    enabled: !user?.localId,
-  });
-  const localId = user?.localId ?? locals?.[0]?.id ?? '';
 
   const { data: productos, isLoading } = useQuery({
     queryKey: ['productos', localId],
@@ -69,32 +60,16 @@ export function CashierScreen() {
   };
 
   return (
-    <div className="flex h-full flex-col bg-crema dark:bg-espresso">
-      <header className="flex items-center justify-between border-b border-latte/30 bg-white px-4 py-2.5 dark:bg-[#262019]">
-        <h1 className="text-lg font-bold text-cafe dark:text-latte">☕ POSCOFFE · Caja</h1>
-        <div className="flex items-center gap-3">
-          <OfflineBadge />
-          <span className="hidden text-sm text-[#2B2420] dark:text-[#F2EDE6] sm:inline">
-            {user?.nombre} · <span className="text-[#8A7F75]">{user?.role}</span>
-          </span>
-          <button
-            onClick={logout}
-            className="rounded-lg border border-latte/40 px-3 py-1.5 text-sm font-medium text-cafe dark:text-latte"
-          >
-            Salir
-          </button>
-        </div>
-      </header>
-
+    <div className="flex h-full flex-col">
       <CustomerBar />
 
-      <div className="flex flex-1 flex-col overflow-hidden sm:flex-row">
+      <div className="flex min-h-0 flex-1 flex-col overflow-hidden sm:flex-row">
         {/* Catálogo */}
         <main className="flex-1 overflow-y-auto p-4">
           {!localId ? (
             <p className="text-[#8A7F75]">Sin local asignado.</p>
           ) : isLoading ? (
-            <p className="text-[#8A7F75]">Cargando catálogo…</p>
+            <CatalogSkeleton />
           ) : porCategoria.length === 0 ? (
             <div className="mt-10 text-center text-[#8A7F75]">
               <p className="text-4xl">🗒️</p>
@@ -103,9 +78,7 @@ export function CashierScreen() {
           ) : (
             porCategoria.map(([cat, items]) => (
               <section key={cat} className="mb-6">
-                <h2 className="mb-3 text-sm font-bold uppercase tracking-wide text-[#8A7F75]">
-                  {cat}
-                </h2>
+                <h2 className="mb-3 text-sm font-bold uppercase tracking-wide text-[#8A7F75]">{cat}</h2>
                 <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
                   {items.map((p) => (
                     <button
@@ -113,9 +86,7 @@ export function CashierScreen() {
                       onClick={() => setOpenProductId(p.id)}
                       className="flex h-24 flex-col justify-between rounded-xl bg-white p-3 text-left shadow-sm transition hover:shadow-md active:scale-95 dark:bg-[#262019]"
                     >
-                      <span className="font-semibold text-[#2B2420] dark:text-[#F2EDE6]">
-                        {p.nombre}
-                      </span>
+                      <span className="font-semibold text-[#2B2420] dark:text-[#F2EDE6]">{p.nombre}</span>
                       <span className="text-sm text-cafe dark:text-latte">
                         {p.variantes.length
                           ? `desde S/${Math.min(...p.variantes.map((v) => Number(v.precio))).toFixed(2)}`
@@ -144,6 +115,16 @@ export function CashierScreen() {
           {toast}
         </div>
       )}
+    </div>
+  );
+}
+
+function CatalogSkeleton() {
+  return (
+    <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
+      {Array.from({ length: 8 }).map((_, i) => (
+        <div key={i} className="h-24 animate-pulse rounded-xl bg-latte/15" />
+      ))}
     </div>
   );
 }

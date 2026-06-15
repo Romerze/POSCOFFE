@@ -1,8 +1,8 @@
 import { useAuth } from './store/auth';
 import { LoginScreen } from './screens/LoginScreen';
-import { CashierScreen } from './screens/CashierScreen';
+import { AppShell } from './components/AppShell';
 
 export default function App() {
   const user = useAuth((s) => s.user);
-  return user ? <CashierScreen /> : <LoginScreen />;
+  return user ? <AppShell /> : <LoginScreen />;
 }

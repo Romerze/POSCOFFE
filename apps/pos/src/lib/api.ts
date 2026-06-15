@@ -1,6 +1,6 @@
-import type { LoginResponse, OrderChannel, PaymentMethod } from '@poscoffe/types';
+import type { LoginResponse, OrderChannel, OrderStatus, PaymentMethod } from '@poscoffe/types';
 import { useAuth } from '../store/auth';
-import type { Local, Producto, ProductoDetalle } from '../types';
+import type { KdsOrder, Local, Producto, ProductoDetalle } from '../types';
 
 const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3000/api/v1';
 
@@ -112,4 +112,40 @@ export const api = {
 
   recomendaciones: (clienteId: string) =>
     request<Recomendaciones>(`/clientes/${clienteId}/recomendaciones`),
+
+  kdsCola: (localId: string) =>
+    request<KdsOrder[]>(`/kds/cola?local=${encodeURIComponent(localId)}`),
+
+  updateOrderEstado: (id: string, estado: OrderStatus) =>
+    request<KdsOrder>(`/pedidos/${id}/estado`, {
+      method: 'PATCH',
+      body: JSON.stringify({ estado }),
+    }),
+
+  // Reportes (dueño/admin)
+  dashboard: (localId: string) =>
+    request<DashboardKpis>(`/dashboard/kpis?local=${encodeURIComponent(localId)}`),
+  mapaCalor: (localId: string) =>
+    request<{ hora: number; cantidad: number; ventas: string }[]>(
+      `/reportes/mapa-calor?local=${encodeURIComponent(localId)}`,
+    ),
+  margenes: (localId: string) =>
+    request<{ varianteId: string; nombre: string; precio: string; costo: string; margen: string; margenPct: number }[]>(
+      `/reportes/margenes?local=${encodeURIComponent(localId)}`,
+    ),
+  quiebres: (localId: string) =>
+    request<{ insumoId: string; nombre: string; stockActual: string; diasRestantes: number | null; critico: boolean }[]>(
+      `/reportes/quiebres?local=${encodeURIComponent(localId)}`,
+    ),
+  ranking: (localId: string) =>
+    request<{ usuarioId: string | null; nombre: string; pedidos: number; ventas: string }[]>(
+      `/reportes/ranking?local=${encodeURIComponent(localId)}`,
+    ),
 };
+
+export interface DashboardKpis {
+  ventas: string;
+  numPedidos: number;
+  ticketPromedio: string;
+  productosTop: { varianteId: string; nombre: string; cantidad: number }[];
+}

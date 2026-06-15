@@ -47,6 +47,24 @@ export interface Local {
   nombre: string;
 }
 
+export interface KdsDetalle {
+  id: string;
+  cantidad: number;
+  notas?: string | null;
+  variante: { id: string; nombre: string };
+  modificadores: { id: string }[];
+}
+
+export interface KdsOrder {
+  id: string;
+  canal: string;
+  mesa?: string | null;
+  estado: string;
+  total: string;
+  creadoEn: string;
+  detalles: KdsDetalle[];
+}
+
 export interface CartItem {
   key: string; // id único de línea en el carrito
   varianteId: string;
