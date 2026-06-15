@@ -55,6 +55,24 @@ export interface CreatePaymentPayload {
   propina?: number;
 }
 
+export interface PromoEvalResult {
+  descuento: number;
+  aplicada: { id: string; nombre: string } | null;
+}
+
+export interface ClienteIdentificado {
+  id: string;
+  nombre: string;
+  esVip: boolean;
+  fidelizacion?: { puntos: number; nivel: string } | null;
+}
+
+export interface Recomendaciones {
+  habitual: { varianteId: string; nombre: string; veces: number } | null;
+  frecuentes: { varianteId: string; nombre: string; veces: number }[];
+  sugerenciaNueva: { varianteId: string; nombre: string } | null;
+}
+
 export const api = {
   login: (email: string, password: string) =>
     request<LoginResponse>('/auth/login', {
@@ -82,4 +100,16 @@ export const api = {
       method: 'POST',
       body: JSON.stringify(payload),
     }),
+
+  evaluarPromos: (localId: string, items: { varianteId: string; cantidad: number; precioUnit: number }[]) =>
+    request<PromoEvalResult>('/carrito/evaluar-promos', {
+      method: 'POST',
+      body: JSON.stringify({ localId, items }),
+    }),
+
+  identificarCliente: (telefono: string) =>
+    request<ClienteIdentificado>(`/clientes/identificar?telefono=${encodeURIComponent(telefono)}`),
+
+  recomendaciones: (clienteId: string) =>
+    request<Recomendaciones>(`/clientes/${clienteId}/recomendaciones`),
 };

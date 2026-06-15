@@ -7,6 +7,7 @@ import { useCart } from '../store/cart';
 import { OfflineBadge } from '../components/OfflineBadge';
 import { ProductModal } from '../components/ProductModal';
 import { Ticket } from '../components/Ticket';
+import { CustomerBar } from '../components/CustomerBar';
 import type { Producto } from '../types';
 
 export function CashierScreen() {
@@ -54,7 +55,8 @@ export function CashierScreen() {
           modificadorIds: it.modificadorIds,
         })),
       });
-      await api.addPayment(order.id, { metodo, monto: cart.total() });
+      // Paga el total ya con descuento de promociones (calculado por el server).
+      await api.addPayment(order.id, { metodo, monto: Number(order.total) });
       cart.clear();
       setToast(`Venta cobrada · S/${Number(order.total).toFixed(2)}`);
       setTimeout(() => setToast(null), 2500);
@@ -83,6 +85,8 @@ export function CashierScreen() {
           </button>
         </div>
       </header>
+
+      <CustomerBar />
 
       <div className="flex flex-1 flex-col overflow-hidden sm:flex-row">
         {/* Catálogo */}
@@ -127,7 +131,7 @@ export function CashierScreen() {
 
         {/* Ticket */}
         <div className="border-t border-latte/30 sm:border-l sm:border-t-0">
-          <Ticket onCobrar={cobrar} cobrando={cobrando} />
+          <Ticket localId={localId} onCobrar={cobrar} cobrando={cobrando} />
         </div>
       </div>
 

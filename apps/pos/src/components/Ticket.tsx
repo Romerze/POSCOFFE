@@ -1,4 +1,6 @@
+import { useQuery } from '@tanstack/react-query';
 import type { PaymentMethod } from '@poscoffe/types';
+import { api } from '../lib/api';
 import { useCart } from '../store/cart';
 
 const METODOS: { metodo: PaymentMethod; label: string }[] = [
@@ -8,14 +10,31 @@ const METODOS: { metodo: PaymentMethod; label: string }[] = [
 ];
 
 export function Ticket({
+  localId,
   onCobrar,
   cobrando,
 }: {
+  localId: string;
   onCobrar: (metodo: PaymentMethod) => void;
   cobrando: boolean;
 }) {
   const { items, setCantidad, remove, clear, total } = useCart();
-  const totalValue = total();
+  const subtotal = total();
+
+  // Evalúa promociones en vivo cuando cambia el carrito.
+  const cartKey = items.map((it) => `${it.varianteId}:${it.cantidad}:${it.precioUnit}`).join('|');
+  const { data: promo } = useQuery({
+    queryKey: ['promos', localId, cartKey],
+    queryFn: () =>
+      api.evaluarPromos(
+        localId,
+        items.map((it) => ({ varianteId: it.varianteId, cantidad: it.cantidad, precioUnit: it.precioUnit })),
+      ),
+    enabled: items.length > 0 && !!localId,
+  });
+
+  const descuento = promo?.descuento ?? 0;
+  const totalFinal = Math.max(0, subtotal - descuento);
 
   return (
     <aside className="flex h-full w-full flex-col bg-white dark:bg-[#262019] sm:w-96">
@@ -52,9 +71,7 @@ export function Ticket({
                 >
                   −
                 </button>
-                <span className="w-6 text-center text-[#2B2420] dark:text-[#F2EDE6]">
-                  {it.cantidad}
-                </span>
+                <span className="w-6 text-center text-[#2B2420] dark:text-[#F2EDE6]">{it.cantidad}</span>
                 <button
                   onClick={() => setCantidad(it.key, it.cantidad + 1)}
                   className="h-7 w-7 rounded-full bg-latte/20 text-lg leading-none text-cafe dark:text-latte"
@@ -71,9 +88,21 @@ export function Ticket({
       </div>
 
       <div className="border-t border-latte/30 p-4">
-        <div className="mb-3 flex justify-between text-lg font-bold text-[#2B2420] dark:text-[#F2EDE6]">
+        {descuento > 0 && (
+          <>
+            <div className="flex justify-between text-sm text-[#8A7F75]">
+              <span>Subtotal</span>
+              <span>S/{subtotal.toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between text-sm font-medium text-exito">
+              <span>🎉 {promo?.aplicada?.nombre ?? 'Descuento'}</span>
+              <span>−S/{descuento.toFixed(2)}</span>
+            </div>
+          </>
+        )}
+        <div className="mb-3 mt-1 flex justify-between text-lg font-bold text-[#2B2420] dark:text-[#F2EDE6]">
           <span>Total</span>
-          <span>S/{totalValue.toFixed(2)}</span>
+          <span>S/{totalFinal.toFixed(2)}</span>
         </div>
         <div className="grid grid-cols-3 gap-2">
           {METODOS.map((m) => (
