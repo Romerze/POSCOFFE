@@ -13,7 +13,7 @@ export const ORDER_STATUSES = [
 export type OrderStatus = (typeof ORDER_STATUSES)[number];
 
 /** Métodos de pago soportados (extensible por adaptador). */
-export const PAYMENT_METHODS = ['efectivo', 'tarjeta', 'digital'] as const;
+export const PAYMENT_METHODS = ['efectivo', 'tarjeta', 'digital', 'suscripcion'] as const;
 export type PaymentMethod = (typeof PAYMENT_METHODS)[number];
 
 /** Tipos de movimiento de stock (append-only, sync por deltas). */
