@@ -1,8 +1,10 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Prisma } from '@prisma/client';
 import { randomUUID } from 'node:crypto';
 import { PrismaService } from '../prisma/prisma.service';
 import { StockService, type StockMovementInput } from '../inventory/stock.service';
+import { EVENTS } from '../common/events';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { CancelOrderDto, CreatePaymentDto } from './dto/payment.dto';
 import { priceOrder } from './order-pricing';
@@ -17,6 +19,7 @@ export class OrdersService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly stock: StockService,
+    private readonly events: EventEmitter2,
   ) {}
 
   getOrder(id: string) {
@@ -82,8 +85,8 @@ export class OrdersService {
 
     const pedidoId = dto.id ?? randomUUID();
 
-    return this.prisma.$transaction(async (tx) => {
-      const pedido = await tx.pedido.create({
+    const pedido = await this.prisma.$transaction(async (tx) => {
+      const created = await tx.pedido.create({
         data: {
           id: pedidoId,
           operationId: dto.operationId,
@@ -111,17 +114,27 @@ export class OrdersService {
       });
 
       // Movimientos de stock con refId = pedido (dentro de la misma transacción).
-      const refMovements = movements.map((m) => ({ ...m, refId: pedido.id }));
+      const refMovements = movements.map((m) => ({ ...m, refId: created.id }));
       await this.stock.applyMany(refMovements, tx);
 
-      return pedido;
+      return created;
     });
+
+    // Notifica al KDS (cocina/barista) en tiempo real.
+    this.events.emit(EVENTS.ORDER_CREATED, { localId: pedido.localId, order: pedido });
+    return pedido;
   }
 
   async updateEstado(id: string, estado: string) {
     const pedido = await this.prisma.pedido.findUnique({ where: { id } });
     if (!pedido) throw new NotFoundException('Pedido no encontrado');
-    return this.prisma.pedido.update({ where: { id }, data: { estado }, include: orderInclude });
+    const updated = await this.prisma.pedido.update({
+      where: { id },
+      data: { estado },
+      include: orderInclude,
+    });
+    this.events.emit(EVENTS.ORDER_UPDATED, { localId: updated.localId, order: updated });
+    return updated;
   }
 
   async addPayment(id: string, dto: CreatePaymentDto) {
@@ -152,7 +165,7 @@ export class OrdersService {
       where: { refId: id, tipo: 'venta' },
     });
 
-    return this.prisma.$transaction(async (tx) => {
+    const cancelado = await this.prisma.$transaction(async (tx) => {
       // Revertir cada movimiento de venta con un ajuste de signo opuesto.
       for (const m of ventaMovs) {
         await this.stock.applyMovement(
@@ -166,7 +179,14 @@ export class OrdersService {
           tx,
         );
       }
-      return tx.pedido.update({ where: { id }, data: { estado: 'cancelado' }, include: orderInclude });
+      return tx.pedido.update({
+        where: { id },
+        data: { estado: 'cancelado' },
+        include: orderInclude,
+      });
     });
+
+    this.events.emit(EVENTS.ORDER_UPDATED, { localId: cancelado.localId, order: cancelado });
+    return cancelado;
   }
 }
