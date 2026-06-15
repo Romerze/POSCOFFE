@@ -153,9 +153,16 @@ export class OrdersService {
     if (!pedido) throw new NotFoundException('Pedido no encontrado');
     if (pedido.estado === 'cancelado') throw new BadRequestException('Pedido cancelado');
 
+    // Atribuye el pago al turno abierto del local (para el reporte Z).
+    const turno = await this.prisma.turno.findFirst({
+      where: { localId: pedido.localId, estado: 'abierto' },
+      select: { id: true },
+    });
+
     const pago = await this.prisma.pago.create({
       data: {
         pedidoId: id,
+        turnoId: turno?.id ?? null,
         metodo: dto.metodo,
         monto: dto.monto,
         propina: dto.propina ?? 0,

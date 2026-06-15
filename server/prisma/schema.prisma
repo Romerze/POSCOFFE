@@ -348,7 +348,8 @@ model DetalleModificador {
 model Pago {
   id         String  @id @default(uuid())
   pedidoId   String  @map("pedido_id")
-  metodo     String // efectivo | tarjeta | digital
+  turnoId    String? @map("turno_id") // turno en que se cobró (para el reporte Z)
+  metodo     String // efectivo | tarjeta | digital | suscripcion
   monto      Decimal @db.Decimal(10, 2)
   propina    Decimal @default(0) @db.Decimal(10, 2)
   referencia String?
@@ -356,8 +357,10 @@ model Pago {
   proveedor  String?
 
   pedido Pedido @relation(fields: [pedidoId], references: [id], onDelete: Cascade)
+  turno  Turno? @relation(fields: [turnoId], references: [id])
 
   @@index([pedidoId])
+  @@index([turnoId])
   @@map("pago")
 }
 
@@ -482,6 +485,7 @@ model Turno {
   local      Local             @relation(fields: [localId], references: [id])
   usuario    Usuario           @relation(fields: [usuarioId], references: [id])
   movimientos MovimientoCaja[]
+  pagos      Pago[]
 
   @@index([localId])
   @@map("turno")

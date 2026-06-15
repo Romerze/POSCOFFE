@@ -77,6 +77,11 @@ export class SubscriptionsService {
       throw new BadRequestException('El pedido ya fue pagado o consumido');
     }
 
+    const turno = await this.prisma.turno.findFirst({
+      where: { localId: pedido.localId, estado: 'abierto' },
+      select: { id: true },
+    });
+
     return this.prisma.$transaction(async (tx) => {
       const consumo = await tx.consumoSuscripcion.create({
         data: { suscripcionId, pedidoId: pedido.id },
@@ -84,6 +89,7 @@ export class SubscriptionsService {
       await tx.pago.create({
         data: {
           pedidoId: pedido.id,
+          turnoId: turno?.id ?? null,
           metodo: 'suscripcion',
           monto: pedido.total,
           estado: 'aprobado',

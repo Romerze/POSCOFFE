@@ -58,12 +58,9 @@ export class CashService {
     const desde = turno.apertura;
     const hasta = new Date();
 
-    // Pagos del periodo en el local, por método.
+    // Pagos atribuidos a este turno, por método (vínculo directo turnoId).
     const pagos = await this.prisma.pago.findMany({
-      where: {
-        estado: 'aprobado',
-        pedido: { localId: turno.localId, estado: { not: 'cancelado' }, creadoEn: { gte: desde, lte: hasta } },
-      },
+      where: { estado: 'aprobado', turnoId: turno.id },
       include: { pedido: { select: { id: true, total: true } } },
     });
 
