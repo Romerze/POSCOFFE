@@ -8,7 +8,8 @@ services:
       POSTGRES_PASSWORD: poscoffe
       POSTGRES_DB: poscoffe
     ports:
-      - "5432:5432"
+      # Host 5434 para no chocar con un PostgreSQL instalado localmente (5432).
+      - "5434:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
@@ -22,7 +23,8 @@ services:
     container_name: poscoffe-redis
     restart: unless-stopped
     ports:
-      - "6379:6379"
+      # Host 6380 para no chocar con un Redis local (6379).
+      - "6380:6379"
     volumes:
       - redisdata:/data
 

@@ -4,6 +4,11 @@ import { ALL_ROLES, DEFAULT_ROLE_PERMISSIONS, ROLES, type Role } from '@poscoffe
 
 const prisma = new PrismaClient();
 
+/** UUID v4 determinista a partir de un sufijo hex (≤12 chars). */
+function uid(suffix: string): string {
+  return `00000000-0000-4000-8000-${suffix.padStart(12, '0')}`;
+}
+
 async function main() {
   // 1. Roles base con sus permisos por defecto.
   for (const nombre of ALL_ROLES) {
@@ -15,11 +20,12 @@ async function main() {
   }
 
   // 2. Local de demostración.
+  const localId = uid('1');
   const local = await prisma.local.upsert({
-    where: { id: '00000000-0000-0000-0000-000000000001' },
+    where: { id: localId },
     update: {},
     create: {
-      id: '00000000-0000-0000-0000-000000000001',
+      id: localId,
       nombre: 'POSCOFFE Demo',
       direccion: 'Av. Café 123',
       timezone: 'America/Lima',
@@ -38,165 +44,116 @@ async function main() {
   await prisma.usuario.upsert({
     where: { email: 'dueno@poscoffe.dev' },
     update: {},
-    create: {
-      nombre: 'Dueño Demo',
-      email: 'dueno@poscoffe.dev',
-      passwordHash,
-      pinHash,
-      rolId: rolOwner.id,
-      localId: null, // multi-local
-    },
+    create: { nombre: 'Dueño Demo', email: 'dueno@poscoffe.dev', passwordHash, pinHash, rolId: rolOwner.id, localId: null },
   });
-
   await prisma.usuario.upsert({
     where: { email: 'cajero@poscoffe.dev' },
     update: {},
-    create: {
-      nombre: 'Cajero Demo',
-      email: 'cajero@poscoffe.dev',
-      passwordHash,
-      pinHash,
-      rolId: rolCashier.id,
-      localId: local.id,
-    },
+    create: { nombre: 'Cajero Demo', email: 'cajero@poscoffe.dev', passwordHash, pinHash, rolId: rolCashier.id, localId: local.id },
   });
-
   await prisma.usuario.upsert({
     where: { email: 'barista@poscoffe.dev' },
     update: {},
-    create: {
-      nombre: 'Barista Demo',
-      email: 'barista@poscoffe.dev',
-      passwordHash,
-      pinHash,
-      rolId: rolBarista.id,
-      localId: local.id,
-    },
+    create: { nombre: 'Barista Demo', email: 'barista@poscoffe.dev', passwordHash, pinHash, rolId: rolBarista.id, localId: local.id },
   });
 
   // 4. Caja del local.
   await prisma.caja.upsert({
-    where: { id: '00000000-0000-0000-0000-0000000000c1' },
+    where: { id: uid('c1') },
     update: {},
-    create: { id: '00000000-0000-0000-0000-0000000000c1', localId: local.id, nombre: 'Caja 1' },
+    create: { id: uid('c1'), localId: local.id, nombre: 'Caja 1' },
   });
 
-  // 5. Insumos.
+  // 5. Insumos + stock inicial en el local.
   const insumos: Record<string, string> = {};
   const insumoDefs = [
-    { key: 'cafe', id: '01', nombre: 'Café molido', unidad: 'g', costoUnitario: 0.05 },
-    { key: 'leche', id: '02', nombre: 'Leche', unidad: 'ml', costoUnitario: 0.004 },
-    { key: 'avena', id: '03', nombre: 'Leche de avena', unidad: 'ml', costoUnitario: 0.01 },
-    { key: 'vaso', id: '04', nombre: 'Vaso 12oz', unidad: 'u', costoUnitario: 0.3 },
+    { key: 'cafe', id: '101', nombre: 'Café molido', unidad: 'g', costoUnitario: 0.05 },
+    { key: 'leche', id: '102', nombre: 'Leche', unidad: 'ml', costoUnitario: 0.004 },
+    { key: 'avena', id: '103', nombre: 'Leche de avena', unidad: 'ml', costoUnitario: 0.01 },
+    { key: 'vaso', id: '104', nombre: 'Vaso 12oz', unidad: 'u', costoUnitario: 0.3 },
   ];
   for (const d of insumoDefs) {
-    const uuid = `00000000-0000-0000-0000-0000000000${d.id}`;
+    const id = uid(d.id);
     const insumo = await prisma.insumo.upsert({
-      where: { id: uuid },
+      where: { id },
       update: { costoUnitario: d.costoUnitario },
-      create: { id: uuid, nombre: d.nombre, unidad: d.unidad, costoUnitario: d.costoUnitario },
+      create: { id, nombre: d.nombre, unidad: d.unidad, costoUnitario: d.costoUnitario },
     });
     insumos[d.key] = insumo.id;
-    // Stock inicial en el local.
     await prisma.inventario.upsert({
       where: { localId_insumoId: { localId: local.id, insumoId: insumo.id } },
       update: {},
-      create: {
-        localId: local.id,
-        insumoId: insumo.id,
-        stockActual: 10000,
-        stockMinimo: 500,
-        puntoReorden: 1000,
-      },
+      create: { localId: local.id, insumoId: insumo.id, stockActual: 10000, stockMinimo: 500, puntoReorden: 1000 },
     });
   }
 
-  // 6. Categoría + productos + variantes + recetas.
+  // 6. Categoría + productos + variantes + recetas (con costeo).
   const categoria = await prisma.categoria.upsert({
-    where: { id: '00000000-0000-0000-0000-0000000000a1' },
+    where: { id: uid('a01') },
     update: {},
-    create: { id: '00000000-0000-0000-0000-0000000000a1', localId: local.id, nombre: 'Café caliente', orden: 1 },
+    create: { id: uid('a01'), localId: local.id, nombre: 'Café caliente', orden: 1 },
   });
 
   const productosDef = [
     {
-      id: 'b1',
+      id: 'b01',
       nombre: 'Latte',
       variantes: [
-        { id: 'd1', nombre: 'Mediano', precio: 12, receta: [['cafe', 18], ['leche', 200], ['vaso', 1]] },
-        { id: 'd2', nombre: 'Grande', precio: 15, receta: [['cafe', 24], ['leche', 300], ['vaso', 1]] },
+        { id: 'd01', nombre: 'Mediano', precio: 12, receta: [['cafe', 18], ['leche', 200], ['vaso', 1]] },
+        { id: 'd02', nombre: 'Grande', precio: 15, receta: [['cafe', 24], ['leche', 300], ['vaso', 1]] },
       ],
     },
+    { id: 'b02', nombre: 'Espresso', variantes: [{ id: 'd03', nombre: 'Único', precio: 8, receta: [['cafe', 18]] }] },
     {
-      id: 'b2',
-      nombre: 'Espresso',
-      variantes: [{ id: 'd3', nombre: 'Único', precio: 8, receta: [['cafe', 18]] }],
-    },
-    {
-      id: 'b3',
+      id: 'b03',
       nombre: 'Capuccino',
-      variantes: [{ id: 'd4', nombre: 'Mediano', precio: 13, receta: [['cafe', 18], ['leche', 150], ['vaso', 1]] }],
+      variantes: [{ id: 'd04', nombre: 'Mediano', precio: 13, receta: [['cafe', 18], ['leche', 150], ['vaso', 1]] }],
     },
   ];
 
   for (const p of productosDef) {
-    const pid = `00000000-0000-0000-0000-0000000000${p.id}`;
+    const pid = uid(p.id);
     await prisma.producto.upsert({
       where: { id: pid },
       update: {},
       create: { id: pid, localId: local.id, categoriaId: categoria.id, nombre: p.nombre },
     });
     for (const v of p.variantes) {
-      const vid = `00000000-0000-0000-0000-0000000000${v.id}`;
+      const vid = uid(v.id);
       await prisma.variante.upsert({
         where: { id: vid },
         update: { precio: v.precio },
         create: { id: vid, productoId: pid, nombre: v.nombre, precio: v.precio },
       });
-      // Receta (reemplazo completo) + costeo simple.
       await prisma.receta.deleteMany({ where: { varianteId: vid } });
       let costo = 0;
       for (const [key, cantidad] of v.receta as [string, number][]) {
-        await prisma.receta.create({
-          data: { varianteId: vid, insumoId: insumos[key], cantidad },
-        });
-        const def = insumoDefs.find((d) => d.key === key)!;
-        costo += def.costoUnitario * cantidad;
+        await prisma.receta.create({ data: { varianteId: vid, insumoId: insumos[key], cantidad } });
+        costo += insumoDefs.find((d) => d.key === key)!.costoUnitario * cantidad;
       }
       await prisma.variante.update({ where: { id: vid }, data: { costoCalculado: costo } });
     }
   }
 
   // 7. Grupo de modificadores "Tipo de leche" enlazado a Latte y Capuccino.
+  const grupoId = uid('e01');
   const grupo = await prisma.modificadorGrupo.upsert({
-    where: { id: '00000000-0000-0000-0000-0000000000e1' },
+    where: { id: grupoId },
     update: {},
-    create: {
-      id: '00000000-0000-0000-0000-0000000000e1',
-      nombre: 'Tipo de leche',
-      seleccion: 'unica',
-      obligatorio: false,
-    },
+    create: { id: grupoId, nombre: 'Tipo de leche', seleccion: 'unica', obligatorio: false },
   });
   await prisma.modificador.upsert({
-    where: { id: '00000000-0000-0000-0000-0000000000f1' },
+    where: { id: uid('f01') },
     update: {},
-    create: { id: '00000000-0000-0000-0000-0000000000f1', grupoId: grupo.id, nombre: 'Entera', precioExtra: 0 },
+    create: { id: uid('f01'), grupoId: grupo.id, nombre: 'Entera', precioExtra: 0 },
   });
   await prisma.modificador.upsert({
-    where: { id: '00000000-0000-0000-0000-0000000000f2' },
+    where: { id: uid('f02') },
     update: {},
-    create: {
-      id: '00000000-0000-0000-0000-0000000000f2',
-      grupoId: grupo.id,
-      nombre: 'Avena',
-      precioExtra: 1.5,
-      insumoId: insumos['avena'],
-      cantidadInsumo: 200,
-    },
+    create: { id: uid('f02'), grupoId: grupo.id, nombre: 'Avena', precioExtra: 1.5, insumoId: insumos['avena'], cantidadInsumo: 200 },
   });
-  for (const pid of ['b1', 'b3']) {
-    const productoId = `00000000-0000-0000-0000-0000000000${pid}`;
+  for (const short of ['b01', 'b03']) {
+    const productoId = uid(short);
     await prisma.productoModificadorGrupo.upsert({
       where: { productoId_grupoId: { productoId, grupoId: grupo.id } },
       update: {},
