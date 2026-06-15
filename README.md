@@ -8,7 +8,7 @@ POSCOFFE no es un POS tradicional que solo registra ventas e imprime tickets. Es
 
 ## Estado del proyecto
 
-> 🟢 **Fase 0 (Fundaciones) completa.** Monorepo operativo con: API NestJS + Prisma (auth JWT/PIN + RBAC), esquema de datos completo y migración inicial, y app de caja (React PWA offline-first) con login. Siguiente: **Fase 1 (MVP operativo)**.
+> 🟢 **Fase 1 (MVP operativo) en curso — núcleo completo.** Sobre las fundaciones de Fase 0, el backend ya cubre: catálogo + recetas + costeo, inventario por deltas, ventas con descuento de stock, KDS en tiempo real (WebSockets), turnos/caja con reporte Z y fidelización con puntos automáticos. El frontend incluye la **pantalla de caja** (catálogo, personalización, ticket y cobro). Pendiente: verificación end-to-end contra Postgres y refinamientos (promos, devoluciones).
 
 Todos los commits y el proceso completo se versionan en este repositorio. Para correr el proyecto, ver [DEVELOPMENT.md](DEVELOPMENT.md).
 
