@@ -20,78 +20,81 @@ export function Ticket({
 }) {
   const { items, setCantidad, remove, clear, total } = useCart();
   const subtotal = total();
-
   const cartKey = items.map((it) => `${it.varianteId}:${it.cantidad}:${it.precioUnit}`).join('|');
+
   const { data: promo } = useQuery({
     queryKey: ['promos', localId, cartKey],
     queryFn: () =>
-      api.evaluarPromos(
-        localId,
-        items.map((it) => ({ varianteId: it.varianteId, cantidad: it.cantidad, precioUnit: it.precioUnit })),
-      ),
+      api.evaluarPromos(localId, items.map((it) => ({ varianteId: it.varianteId, cantidad: it.cantidad, precioUnit: it.precioUnit }))),
     enabled: items.length > 0 && !!localId,
   });
 
   const descuento = promo?.descuento ?? 0;
   const totalFinal = Math.max(0, subtotal - descuento);
+  const unidades = items.reduce((a, it) => a + it.cantidad, 0);
 
   return (
-    <aside className="flex h-full w-full flex-col bg-surface sm:w-[24rem]">
-      <div className="flex items-center justify-between border-b border-line px-4 py-3.5">
-        <h2 className="font-display font-bold tracking-tight text-fg">Comanda</h2>
+    <aside className="flex h-full w-full flex-col border-l border-line bg-surface sm:w-[23rem]">
+      <div className="flex items-center justify-between border-b border-line px-5 py-4">
+        <div>
+          <div className="eyebrow">Comanda</div>
+          <div className="font-display text-lg font-bold text-fg">
+            {unidades > 0 ? `${unidades} ${unidades === 1 ? 'ítem' : 'ítems'}` : 'Vacía'}
+          </div>
+        </div>
         {items.length > 0 && (
-          <button onClick={clear} className="text-sm text-peligro hover:underline">
-            Vaciar
-          </button>
+          <button onClick={clear} className="text-sm text-muted hover:text-danger">Vaciar</button>
         )}
       </div>
 
-      <div className="flex-1 overflow-y-auto px-4">
+      <div className="flex-1 overflow-y-auto px-5">
         {items.length === 0 ? (
-          <div className="mt-16 text-center">
-            <p className="text-3xl">🫗</p>
-            <p className="mt-2 text-sm text-muted">Toca un producto para empezar la comanda.</p>
+          <div className="flex h-full flex-col items-center justify-center text-center">
+            <div className="grid h-14 w-14 place-items-center rounded-full bg-surface2 text-2xl">☕</div>
+            <p className="mt-3 max-w-[14rem] text-sm text-muted">Toca un producto para empezar la comanda.</p>
           </div>
         ) : (
-          items.map((it) => (
-            <div key={it.key} className="border-b border-line/70 py-3">
-              <div className="flex justify-between gap-2">
-                <span className="font-medium text-fg">
-                  {it.productoNombre} · {it.varianteNombre}
-                </span>
-                <span className="font-mono tnum font-semibold text-fg">
-                  S/{(it.precioUnit * it.cantidad).toFixed(2)}
-                </span>
-              </div>
-              {it.modificadorNombres.length > 0 && (
-                <p className="text-xs text-accent">{it.modificadorNombres.join(' · ')}</p>
-              )}
-              <div className="mt-2 flex items-center gap-2">
-                <Stepper onClick={() => setCantidad(it.key, it.cantidad - 1)}>−</Stepper>
-                <span className="w-6 text-center font-mono tnum text-fg">{it.cantidad}</span>
-                <Stepper onClick={() => setCantidad(it.key, it.cantidad + 1)}>+</Stepper>
-                <button onClick={() => remove(it.key)} className="ml-auto text-xs text-muted hover:text-peligro">
-                  Quitar
-                </button>
-              </div>
-            </div>
-          ))
+          <ul className="divide-y divide-dashed divide-line">
+            {items.map((it) => (
+              <li key={it.key} className="py-3.5">
+                <div className="flex justify-between gap-3">
+                  <span className="font-medium leading-tight text-fg">
+                    {it.productoNombre}
+                    <span className="text-muted"> · {it.varianteNombre}</span>
+                  </span>
+                  <span className="font-mono tnum font-semibold text-fg">{(it.precioUnit * it.cantidad).toFixed(2)}</span>
+                </div>
+                {it.modificadorNombres.length > 0 && (
+                  <p className="mt-0.5 text-xs text-honey">{it.modificadorNombres.join(' · ')}</p>
+                )}
+                <div className="mt-2 flex items-center gap-2">
+                  <button onClick={() => setCantidad(it.key, it.cantidad - 1)} className="h-7 w-7 rounded-md bg-surface2 text-lg leading-none text-fg hover:brightness-95">−</button>
+                  <span className="w-6 text-center font-mono tnum text-fg">{it.cantidad}</span>
+                  <button onClick={() => setCantidad(it.key, it.cantidad + 1)} className="h-7 w-7 rounded-md bg-surface2 text-lg leading-none text-fg hover:brightness-95">+</button>
+                  <button onClick={() => remove(it.key)} className="ml-auto text-xs text-muted hover:text-danger">Quitar</button>
+                </div>
+              </li>
+            ))}
+          </ul>
         )}
       </div>
 
-      <div className="border-t border-line p-4">
+      <div className="border-t border-line px-5 py-4">
         {descuento > 0 && (
           <>
-            <Row label="Subtotal" value={`S/${subtotal.toFixed(2)}`} muted />
-            <div className="flex justify-between py-0.5 text-sm font-medium text-exito">
-              <span>🎉 {promo?.aplicada?.nombre ?? 'Descuento'}</span>
+            <div className="flex justify-between py-0.5 text-sm text-muted">
+              <span>Subtotal</span>
+              <span className="font-mono tnum">S/{subtotal.toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between py-0.5 text-sm font-medium text-pine">
+              <span>{promo?.aplicada?.nombre ?? 'Descuento'}</span>
               <span className="font-mono tnum">−S/{descuento.toFixed(2)}</span>
             </div>
           </>
         )}
-        <div className="mb-3 mt-1 flex items-baseline justify-between">
-          <span className="font-display font-bold text-fg">Total</span>
-          <span className="font-mono tnum text-2xl font-bold text-fg">S/{totalFinal.toFixed(2)}</span>
+        <div className="mb-3 mt-1 flex items-end justify-between">
+          <span className="font-display text-lg font-bold text-fg">Total</span>
+          <span className="font-display text-3xl font-extrabold tnum text-cherry">S/{totalFinal.toFixed(2)}</span>
         </div>
         <div className="grid grid-cols-3 gap-2">
           {METODOS.map((m) => (
@@ -99,7 +102,7 @@ export function Ticket({
               key={m.metodo}
               disabled={items.length === 0 || cobrando}
               onClick={() => onCobrar(m.metodo)}
-              className="rounded-lg bg-brand py-3 text-sm font-semibold text-brand-ink transition hover:brightness-110 disabled:opacity-50"
+              className="btn-primary flex-col py-3 text-xs"
             >
               {m.label}
             </button>
@@ -107,25 +110,5 @@ export function Ticket({
         </div>
       </div>
     </aside>
-  );
-}
-
-function Stepper({ onClick, children }: { onClick: () => void; children: React.ReactNode }) {
-  return (
-    <button
-      onClick={onClick}
-      className="h-8 w-8 rounded-full bg-surface2 text-lg leading-none text-fg transition hover:brightness-95"
-    >
-      {children}
-    </button>
-  );
-}
-
-function Row({ label, value, muted }: { label: string; value: string; muted?: boolean }) {
-  return (
-    <div className={`flex justify-between py-0.5 text-sm ${muted ? 'text-muted' : 'text-fg'}`}>
-      <span>{label}</span>
-      <span className="font-mono tnum">{value}</span>
-    </div>
   );
 }

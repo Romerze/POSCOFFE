@@ -1,5 +1,5 @@
 /** @type {import('tailwindcss').Config} */
-const withVar = (name) => `rgb(var(${name}) / <alpha-value>)`;
+const v = (name) => `rgb(var(${name}) / <alpha-value>)`;
 
 export default {
   darkMode: 'class',
@@ -7,34 +7,33 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Identidad POSCOFFE — tinta de tostaduría + matcha + crema ámbar.
-        // Valores temáticos (claro/oscuro) vía variables CSS en index.css.
-        bg: withVar('--bg'),
-        surface: withVar('--surface'),
-        surface2: withVar('--surface-2'),
-        fg: withVar('--fg'),
-        muted: withVar('--muted'),
-        line: withVar('--line'),
-        brand: withVar('--brand'),
-        'brand-ink': withVar('--brand-ink'),
-        accent: withVar('--accent'),
-        exito: withVar('--exito'),
-        alerta: withVar('--alerta'),
-        peligro: withVar('--peligro'),
+        // "Cereza de café": granate (marca) · miel (acento) · espresso · porcelana.
+        paper: v('--paper'),
+        surface: v('--surface'),
+        surface2: v('--surface-2'),
+        fg: v('--fg'),
+        muted: v('--muted'),
+        line: v('--line'),
+        cherry: v('--cherry'),
+        'cherry-ink': v('--cherry-ink'),
+        honey: v('--honey'),
+        pine: v('--pine'),
+        danger: v('--danger'),
+        // Barra de comando (oscura en ambos temas) — la firma.
+        bar: v('--bar'),
+        'bar-fg': v('--bar-fg'),
+        'bar-muted': v('--bar-muted'),
+        'bar-line': v('--bar-line'),
       },
       fontFamily: {
-        display: ['"Space Grotesk"', 'system-ui', 'sans-serif'],
-        sans: ['Inter', 'system-ui', 'sans-serif'],
+        display: ['"Bricolage Grotesque"', 'system-ui', 'sans-serif'],
+        sans: ['"Hanken Grotesk"', 'system-ui', 'sans-serif'],
         mono: ['"JetBrains Mono"', 'ui-monospace', 'monospace'],
       },
-      borderRadius: {
-        lg: '12px',
-        xl: '16px',
-        '2xl': '20px',
-      },
+      borderRadius: { lg: '10px', xl: '14px', '2xl': '20px' },
       boxShadow: {
-        soft: '0 1px 2px rgb(0 0 0 / 0.04), 0 4px 16px -8px rgb(0 0 0 / 0.12)',
-        lift: '0 8px 32px -12px rgb(0 0 0 / 0.25)',
+        soft: '0 1px 2px rgb(40 26 18 / 0.05), 0 6px 20px -10px rgb(40 26 18 / 0.18)',
+        lift: '0 12px 40px -14px rgb(20 12 8 / 0.45)',
       },
     },
   },

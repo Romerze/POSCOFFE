@@ -2,41 +2,49 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ── Identidad POSCOFFE ─────────────────────────────────────────────
-   Tinta de tostaduría (superficies) · matcha/eucalipto (marca) ·
-   crema ámbar (acento). Números en monoespaciado = la firma del oficio. */
+/* ── POSCOFFE · "La barra del tostador" ──────────────────────────────
+   Cereza de café (marca granate) · miel/crema (acento) · espresso · porcelana.
+   Datos en monoespaciado; titulares en Bricolage Grotesque. */
 :root {
-  --bg: 245 244 241; /* papel frío (no crema) */
-  --surface: 255 255 255;
-  --surface-2: 236 234 229;
-  --fg: 33 28 24;
-  --muted: 124 115 107;
-  --line: 226 222 215;
+  --paper: 241 235 225;
+  --surface: 252 249 243;
+  --surface-2: 234 226 213;
+  --fg: 26 20 17;
+  --muted: 122 110 99;
+  --line: 224 214 200;
 
-  --brand: 31 110 90; /* matcha/eucalipto */
-  --brand-ink: 255 255 255; /* texto sobre marca */
-  --accent: 232 154 44; /* crema ámbar */
-  --exito: 47 165 106;
-  --alerta: 224 165 46;
-  --peligro: 229 84 75;
+  --cherry: 166 54 46;
+  --cherry-ink: 250 245 238;
+  --honey: 197 132 44;
+  --pine: 47 107 79;
+  --danger: 198 71 59;
+
+  --bar: 24 17 13;
+  --bar-fg: 240 232 222;
+  --bar-muted: 150 134 120;
+  --bar-line: 50 40 33;
 
   color-scheme: light;
 }
 
 .dark {
-  --bg: 26 22 19; /* tinta de tostaduría */
-  --surface: 34 29 25;
-  --surface-2: 43 37 33;
-  --fg: 242 238 232;
-  --muted: 163 154 143;
-  --line: 53 46 40;
+  --paper: 24 19 16;
+  --surface: 33 26 22;
+  --surface-2: 44 36 30;
+  --fg: 243 237 228;
+  --muted: 165 152 139;
+  --line: 52 43 36;
 
-  --brand: 62 155 130; /* matcha más luminoso en oscuro */
-  --brand-ink: 17 24 21;
-  --accent: 240 168 60;
-  --exito: 63 190 130;
-  --alerta: 242 188 76;
-  --peligro: 232 100 100;
+  --cherry: 201 84 73;
+  --cherry-ink: 26 17 14;
+  --honey: 218 159 66;
+  --pine: 86 162 124;
+  --danger: 226 104 92;
+
+  --bar: 18 13 10;
+  --bar-fg: 240 232 222;
+  --bar-muted: 150 134 120;
+  --bar-line: 46 37 31;
 
   color-scheme: dark;
 }
@@ -49,27 +57,67 @@ body,
 
 body {
   margin: 0;
-  font-family: Inter, system-ui, sans-serif;
-  background: rgb(var(--bg));
+  font-family: 'Hanken Grotesk', system-ui, sans-serif;
+  background-color: rgb(var(--paper));
   color: rgb(var(--fg));
   -webkit-font-smoothing: antialiased;
 }
 
+/* Grano sutil de papel: aporta calidez y evita el "plano de IA". */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+#root {
+  position: relative;
+  z-index: 1;
+}
+
 @layer components {
+  .card {
+    @apply rounded-xl border border-line bg-surface shadow-soft;
+  }
+  .eyebrow {
+    @apply font-mono text-[11px] font-medium uppercase tracking-[0.14em] text-muted;
+  }
   .input {
-    @apply w-full rounded-lg border border-line bg-surface px-3 py-2.5 text-fg outline-none transition placeholder:text-muted focus:border-brand;
+    @apply w-full rounded-lg border border-line bg-surface px-3 py-2.5 text-fg outline-none transition
+           placeholder:text-muted focus:border-cherry focus:ring-2 focus:ring-cherry/20;
+  }
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold
+           transition active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50;
+  }
+  .btn-primary {
+    @apply btn bg-cherry text-cherry-ink hover:brightness-110;
+  }
+  .btn-ghost {
+    @apply btn border border-line text-fg hover:bg-surface2;
+  }
+  .chip {
+    @apply rounded-full px-3.5 py-2 text-sm font-medium transition bg-surface2 text-fg hover:brightness-95;
+  }
+  .chip-on {
+    @apply bg-cherry text-cherry-ink;
+  }
+  .chip-on-honey {
+    @apply text-[rgb(26_17_14)];
+    background-color: rgb(var(--honey));
   }
 }
 
-/* Cifras tabulares para precios, gramos y tiempos. */
 .tnum {
   font-variant-numeric: tabular-nums;
   font-feature-settings: 'tnum' 1;
 }
 
-/* Foco visible y accesible. */
 :focus-visible {
-  outline: 2px solid rgb(var(--brand));
+  outline: 2px solid rgb(var(--cherry));
   outline-offset: 2px;
 }
 

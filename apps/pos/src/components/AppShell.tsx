@@ -7,12 +7,20 @@ import { KdsScreen } from '../screens/KdsScreen';
 import { InsightsScreen } from '../screens/InsightsScreen';
 import { AdminScreen } from '../screens/AdminScreen';
 
-const NAV: { view: View; label: string; icon: string; roles: Role[] }[] = [
-  { view: 'caja', label: 'Caja', icon: '🧾', roles: ['OWNER', 'ADMIN', 'CASHIER'] },
-  { view: 'kds', label: 'Barra', icon: '👨‍🍳', roles: ['OWNER', 'ADMIN', 'BARISTA'] },
-  { view: 'insights', label: 'Insights', icon: '📊', roles: ['OWNER', 'ADMIN'] },
-  { view: 'admin', label: 'Gestión', icon: '⚙️', roles: ['OWNER', 'ADMIN'] },
+const NAV: { view: View; label: string; roles: Role[] }[] = [
+  { view: 'caja', label: 'Caja', roles: ['OWNER', 'ADMIN', 'CASHIER'] },
+  { view: 'kds', label: 'Barra', roles: ['OWNER', 'ADMIN', 'BARISTA'] },
+  { view: 'insights', label: 'Insights', roles: ['OWNER', 'ADMIN'] },
+  { view: 'admin', label: 'Gestión', roles: ['OWNER', 'ADMIN'] },
 ];
+
+const ROL: Record<string, string> = {
+  OWNER: 'Dueño',
+  ADMIN: 'Administrador',
+  CASHIER: 'Cajero',
+  BARISTA: 'Barista',
+  CUSTOMER: 'Cliente',
+};
 
 export function AppShell() {
   const { user, logout } = useAuth();
@@ -22,63 +30,55 @@ export function AppShell() {
   const active = items.some((i) => i.view === view) ? view : items[0]?.view ?? 'caja';
 
   return (
-    <div className="flex h-full flex-col bg-bg">
-      <header className="flex items-center gap-5 border-b border-line bg-surface px-4 py-2.5">
-        <span className="font-display text-lg font-bold tracking-tight text-brand">☕ POSCOFFE</span>
+    <div className="flex h-full flex-col bg-paper">
+      {/* Barra del tostador */}
+      <header className="flex items-center gap-6 bg-bar px-5 text-bar-fg">
+        <span className="flex items-center gap-2 py-3 font-display text-lg font-extrabold tracking-tight">
+          <span className="text-honey">●</span> POSCOFFE
+        </span>
 
-        <nav className="flex gap-1">
+        <nav className="flex h-full items-stretch gap-1">
           {items.map((n) => (
             <button
               key={n.view}
               onClick={() => setView(n.view)}
-              className={`rounded-lg px-3 py-1.5 text-sm font-medium transition ${
-                active === n.view ? 'bg-brand text-brand-ink' : 'text-fg hover:bg-surface2'
+              className={`relative px-3.5 text-sm font-medium transition ${
+                active === n.view ? 'text-bar-fg' : 'text-bar-muted hover:text-bar-fg'
               }`}
             >
-              <span className="mr-1.5">{n.icon}</span>
               {n.label}
+              {active === n.view && (
+                <span className="absolute inset-x-2.5 -bottom-px h-0.5 rounded-full bg-honey" />
+              )}
             </button>
           ))}
         </nav>
 
-        <div className="ml-auto flex items-center gap-2.5">
+        <div className="ml-auto flex items-center gap-4">
           <OfflineBadge />
           <button
             onClick={toggleTheme}
             title="Cambiar tema"
-            className="rounded-lg border border-line px-2.5 py-1.5 text-sm transition hover:bg-surface2"
+            className="rounded-lg px-2 py-1.5 text-bar-muted transition hover:bg-bar-line hover:text-bar-fg"
           >
             {theme === 'dark' ? '☀' : '☾'}
           </button>
-          <span className="hidden text-sm text-fg sm:inline">
-            {user?.nombre} · <span className="text-muted">{rolLabel(user?.role)}</span>
-          </span>
-          <button
-            onClick={logout}
-            className="rounded-lg border border-line px-3 py-1.5 text-sm font-medium text-fg transition hover:bg-surface2"
-          >
+          <div className="hidden text-right sm:block">
+            <div className="text-sm font-medium leading-tight">{user?.nombre}</div>
+            <div className="text-xs text-bar-muted">{ROL[user?.role ?? ''] ?? user?.role}</div>
+          </div>
+          <button onClick={logout} className="rounded-lg border border-bar-line px-3 py-1.5 text-sm font-medium text-bar-fg transition hover:bg-bar-line">
             Salir
           </button>
         </div>
       </header>
 
-      <div className="min-h-0 flex-1">
+      <main className="min-h-0 flex-1">
         {active === 'caja' && <CashierScreen />}
         {active === 'kds' && <KdsScreen />}
         {active === 'insights' && <InsightsScreen />}
         {active === 'admin' && <AdminScreen />}
-      </div>
+      </main>
     </div>
   );
-}
-
-function rolLabel(role?: Role): string {
-  const map: Record<string, string> = {
-    OWNER: 'Dueño',
-    ADMIN: 'Administrador',
-    CASHIER: 'Cajero',
-    BARISTA: 'Barista',
-    CUSTOMER: 'Cliente',
-  };
-  return role ? map[role] ?? role : '';
 }
