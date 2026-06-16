@@ -34,6 +34,9 @@ Thumbs.db
 # Claude Code local settings
 .claude/
 
+# Agent skills (tooling local, no código del proyecto)
+.agents/
+
 # Testing / coverage
 coverage/
 .nyc_output/
