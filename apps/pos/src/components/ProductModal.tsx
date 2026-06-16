@@ -35,11 +35,11 @@ export function ProductModal({ productoId, onClose }: { productoId: string; onCl
     (variante ? Number(variante.precio) : 0) +
     selectedIds.reduce((acc, id) => acc + Number(modIndex.get(id)?.precioExtra ?? 0), 0);
 
-  const toggleMod = (grupoSeleccion: 'unica' | 'multiple', grupoMods: Modificador[], id: string) => {
+  const toggleMod = (sel: 'unica' | 'multiple', mods: Modificador[], id: string) => {
     setSelectedMods((prev) => {
-      if (grupoSeleccion === 'unica') {
+      if (sel === 'unica') {
         const next = { ...prev };
-        grupoMods.forEach((m) => delete next[m.id]);
+        mods.forEach((m) => delete next[m.id]);
         next[id] = true;
         return next;
       }
@@ -62,75 +62,97 @@ export function ProductModal({ productoId, onClose }: { productoId: string; onCl
   };
 
   return (
-    <div className="fixed inset-0 z-20 flex items-end justify-center bg-black/40 sm:items-center">
-      <div className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-t-2xl bg-white p-6 dark:bg-[#262019] sm:rounded-2xl">
+    <div
+      className="fixed inset-0 z-20 flex items-end justify-center bg-black/45 backdrop-blur-sm sm:items-center"
+      onClick={onClose}
+    >
+      <div
+        className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-t-2xl bg-surface p-6 shadow-lift sm:rounded-2xl"
+        onClick={(e) => e.stopPropagation()}
+      >
         {isLoading || !data ? (
-          <p className="text-center text-[#8A7F75]">Cargando…</p>
+          <p className="py-10 text-center text-muted">Cargando…</p>
         ) : (
           <>
-            <h3 className="text-xl font-bold text-[#2B2420] dark:text-[#F2EDE6]">{data.nombre}</h3>
+            <h3 className="font-display text-xl font-bold tracking-tight text-fg">{data.nombre}</h3>
+            {data.descripcion && <p className="mt-0.5 text-sm text-muted">{data.descripcion}</p>}
 
-            <section className="mt-4">
-              <p className="mb-2 text-sm font-semibold text-cafe dark:text-latte">Tamaño</p>
+            <section className="mt-5">
+              <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted">Tamaño</p>
               <div className="flex flex-wrap gap-2">
                 {data.variantes.map((v) => (
-                  <button
-                    key={v.id}
-                    onClick={() => setVarianteId(v.id)}
-                    className={`rounded-full px-4 py-2 text-sm font-medium transition ${
-                      v.id === varianteId
-                        ? 'bg-cafe text-white'
-                        : 'bg-latte/15 text-[#2B2420] dark:text-[#F2EDE6]'
-                    }`}
-                  >
-                    {v.nombre} · S/{Number(v.precio).toFixed(2)}
-                  </button>
+                  <Chip key={v.id} active={v.id === varianteId} onClick={() => setVarianteId(v.id)}>
+                    {v.nombre} · <span className="font-mono tnum">S/{Number(v.precio).toFixed(2)}</span>
+                  </Chip>
                 ))}
               </div>
             </section>
 
             {grupos.map((g) => (
-              <section key={g.id} className="mt-4">
-                <p className="mb-2 text-sm font-semibold text-cafe dark:text-latte">
+              <section key={g.id} className="mt-5">
+                <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted">
                   {g.nombre}
                   {g.obligatorio && <span className="text-peligro"> *</span>}
                 </p>
                 <div className="flex flex-wrap gap-2">
                   {g.modificadores.map((m) => (
-                    <button
+                    <Chip
                       key={m.id}
+                      tone="accent"
+                      active={!!selectedMods[m.id]}
                       onClick={() => toggleMod(g.seleccion, g.modificadores, m.id)}
-                      className={`rounded-full px-4 py-2 text-sm font-medium transition ${
-                        selectedMods[m.id]
-                          ? 'bg-caramelo text-white'
-                          : 'bg-latte/15 text-[#2B2420] dark:text-[#F2EDE6]'
-                      }`}
                     >
                       {m.nombre}
-                      {Number(m.precioExtra) > 0 && ` +S/${Number(m.precioExtra).toFixed(2)}`}
-                    </button>
+                      {Number(m.precioExtra) > 0 && (
+                        <span className="font-mono tnum"> +S/{Number(m.precioExtra).toFixed(2)}</span>
+                      )}
+                    </Chip>
                   ))}
                 </div>
               </section>
             ))}
 
-            <div className="mt-6 flex items-center gap-3">
+            <div className="mt-7 flex items-center gap-3">
               <button
                 onClick={onClose}
-                className="flex-1 rounded-lg border border-latte/40 py-3 font-medium text-cafe dark:text-latte"
+                className="flex-1 rounded-lg border border-line py-3 font-medium text-fg transition hover:bg-surface2"
               >
                 Cancelar
               </button>
               <button
                 onClick={onAdd}
-                className="flex-[2] rounded-lg bg-cafe py-3 font-semibold text-white"
+                className="flex-[2] rounded-lg bg-brand py-3 font-semibold text-brand-ink transition hover:brightness-110"
               >
-                Agregar · S/{precio.toFixed(2)}
+                Agregar · <span className="font-mono tnum">S/{precio.toFixed(2)}</span>
               </button>
             </div>
           </>
         )}
       </div>
     </div>
+  );
+}
+
+function Chip({
+  active,
+  tone = 'brand',
+  onClick,
+  children,
+}: {
+  active: boolean;
+  tone?: 'brand' | 'accent';
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  const on = tone === 'accent' ? 'bg-accent text-[rgb(26_22_19)]' : 'bg-brand text-brand-ink';
+  return (
+    <button
+      onClick={onClick}
+      className={`rounded-full px-3.5 py-2 text-sm font-medium transition ${
+        active ? on : 'bg-surface2 text-fg hover:brightness-95'
+      }`}
+    >
+      {children}
+    </button>
   );
 }

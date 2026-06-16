@@ -21,7 +21,6 @@ export function Ticket({
   const { items, setCantidad, remove, clear, total } = useCart();
   const subtotal = total();
 
-  // Evalúa promociones en vivo cuando cambia el carrito.
   const cartKey = items.map((it) => `${it.varianteId}:${it.cantidad}:${it.precioUnit}`).join('|');
   const { data: promo } = useQuery({
     queryKey: ['promos', localId, cartKey],
@@ -37,11 +36,11 @@ export function Ticket({
   const totalFinal = Math.max(0, subtotal - descuento);
 
   return (
-    <aside className="flex h-full w-full flex-col bg-white dark:bg-[#262019] sm:w-96">
-      <div className="flex items-center justify-between border-b border-latte/30 px-4 py-3">
-        <h2 className="font-bold text-[#2B2420] dark:text-[#F2EDE6]">Ticket</h2>
+    <aside className="flex h-full w-full flex-col bg-surface sm:w-[24rem]">
+      <div className="flex items-center justify-between border-b border-line px-4 py-3.5">
+        <h2 className="font-display font-bold tracking-tight text-fg">Comanda</h2>
         {items.length > 0 && (
-          <button onClick={clear} className="text-sm text-peligro">
+          <button onClick={clear} className="text-sm text-peligro hover:underline">
             Vaciar
           </button>
         )}
@@ -49,36 +48,29 @@ export function Ticket({
 
       <div className="flex-1 overflow-y-auto px-4">
         {items.length === 0 ? (
-          <p className="mt-8 text-center text-sm text-[#8A7F75]">Sin productos</p>
+          <div className="mt-16 text-center">
+            <p className="text-3xl">🫗</p>
+            <p className="mt-2 text-sm text-muted">Toca un producto para empezar la comanda.</p>
+          </div>
         ) : (
           items.map((it) => (
-            <div key={it.key} className="border-b border-latte/20 py-3">
-              <div className="flex justify-between">
-                <span className="font-medium text-[#2B2420] dark:text-[#F2EDE6]">
+            <div key={it.key} className="border-b border-line/70 py-3">
+              <div className="flex justify-between gap-2">
+                <span className="font-medium text-fg">
                   {it.productoNombre} · {it.varianteNombre}
                 </span>
-                <span className="font-semibold text-cafe dark:text-latte">
+                <span className="font-mono tnum font-semibold text-fg">
                   S/{(it.precioUnit * it.cantidad).toFixed(2)}
                 </span>
               </div>
               {it.modificadorNombres.length > 0 && (
-                <p className="text-xs text-[#8A7F75]">{it.modificadorNombres.join(', ')}</p>
+                <p className="text-xs text-accent">{it.modificadorNombres.join(' · ')}</p>
               )}
               <div className="mt-2 flex items-center gap-2">
-                <button
-                  onClick={() => setCantidad(it.key, it.cantidad - 1)}
-                  className="h-7 w-7 rounded-full bg-latte/20 text-lg leading-none text-cafe dark:text-latte"
-                >
-                  −
-                </button>
-                <span className="w-6 text-center text-[#2B2420] dark:text-[#F2EDE6]">{it.cantidad}</span>
-                <button
-                  onClick={() => setCantidad(it.key, it.cantidad + 1)}
-                  className="h-7 w-7 rounded-full bg-latte/20 text-lg leading-none text-cafe dark:text-latte"
-                >
-                  +
-                </button>
-                <button onClick={() => remove(it.key)} className="ml-auto text-xs text-peligro">
+                <Stepper onClick={() => setCantidad(it.key, it.cantidad - 1)}>−</Stepper>
+                <span className="w-6 text-center font-mono tnum text-fg">{it.cantidad}</span>
+                <Stepper onClick={() => setCantidad(it.key, it.cantidad + 1)}>+</Stepper>
+                <button onClick={() => remove(it.key)} className="ml-auto text-xs text-muted hover:text-peligro">
                   Quitar
                 </button>
               </div>
@@ -87,22 +79,19 @@ export function Ticket({
         )}
       </div>
 
-      <div className="border-t border-latte/30 p-4">
+      <div className="border-t border-line p-4">
         {descuento > 0 && (
           <>
-            <div className="flex justify-between text-sm text-[#8A7F75]">
-              <span>Subtotal</span>
-              <span>S/{subtotal.toFixed(2)}</span>
-            </div>
-            <div className="flex justify-between text-sm font-medium text-exito">
+            <Row label="Subtotal" value={`S/${subtotal.toFixed(2)}`} muted />
+            <div className="flex justify-between py-0.5 text-sm font-medium text-exito">
               <span>🎉 {promo?.aplicada?.nombre ?? 'Descuento'}</span>
-              <span>−S/{descuento.toFixed(2)}</span>
+              <span className="font-mono tnum">−S/{descuento.toFixed(2)}</span>
             </div>
           </>
         )}
-        <div className="mb-3 mt-1 flex justify-between text-lg font-bold text-[#2B2420] dark:text-[#F2EDE6]">
-          <span>Total</span>
-          <span>S/{totalFinal.toFixed(2)}</span>
+        <div className="mb-3 mt-1 flex items-baseline justify-between">
+          <span className="font-display font-bold text-fg">Total</span>
+          <span className="font-mono tnum text-2xl font-bold text-fg">S/{totalFinal.toFixed(2)}</span>
         </div>
         <div className="grid grid-cols-3 gap-2">
           {METODOS.map((m) => (
@@ -110,7 +99,7 @@ export function Ticket({
               key={m.metodo}
               disabled={items.length === 0 || cobrando}
               onClick={() => onCobrar(m.metodo)}
-              className="rounded-lg bg-cafe py-2.5 text-sm font-semibold text-white transition hover:bg-cafe/90 disabled:opacity-50"
+              className="rounded-lg bg-brand py-3 text-sm font-semibold text-brand-ink transition hover:brightness-110 disabled:opacity-50"
             >
               {m.label}
             </button>
@@ -118,5 +107,25 @@ export function Ticket({
         </div>
       </div>
     </aside>
+  );
+}
+
+function Stepper({ onClick, children }: { onClick: () => void; children: React.ReactNode }) {
+  return (
+    <button
+      onClick={onClick}
+      className="h-8 w-8 rounded-full bg-surface2 text-lg leading-none text-fg transition hover:brightness-95"
+    >
+      {children}
+    </button>
+  );
+}
+
+function Row({ label, value, muted }: { label: string; value: string; muted?: boolean }) {
+  return (
+    <div className={`flex justify-between py-0.5 text-sm ${muted ? 'text-muted' : 'text-fg'}`}>
+      <span>{label}</span>
+      <span className="font-mono tnum">{value}</span>
+    </div>
   );
 }

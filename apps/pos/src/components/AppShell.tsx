@@ -8,7 +8,7 @@ import { InsightsScreen } from '../screens/InsightsScreen';
 
 const NAV: { view: View; label: string; icon: string; roles: Role[] }[] = [
   { view: 'caja', label: 'Caja', icon: '🧾', roles: ['OWNER', 'ADMIN', 'CASHIER'] },
-  { view: 'kds', label: 'Cocina', icon: '👨‍🍳', roles: ['OWNER', 'ADMIN', 'BARISTA'] },
+  { view: 'kds', label: 'Barra', icon: '👨‍🍳', roles: ['OWNER', 'ADMIN', 'BARISTA'] },
   { view: 'insights', label: 'Insights', icon: '📊', roles: ['OWNER', 'ADMIN'] },
 ];
 
@@ -20,9 +20,9 @@ export function AppShell() {
   const active = items.some((i) => i.view === view) ? view : items[0]?.view ?? 'caja';
 
   return (
-    <div className="flex h-full flex-col bg-crema dark:bg-espresso">
-      <header className="flex items-center gap-4 border-b border-latte/30 bg-white px-4 py-2.5 dark:bg-[#262019]">
-        <h1 className="text-lg font-bold text-cafe dark:text-latte">☕ POSCOFFE</h1>
+    <div className="flex h-full flex-col bg-bg">
+      <header className="flex items-center gap-5 border-b border-line bg-surface px-4 py-2.5">
+        <span className="font-display text-lg font-bold tracking-tight text-brand">☕ POSCOFFE</span>
 
         <nav className="flex gap-1">
           {items.map((n) => (
@@ -30,32 +30,30 @@ export function AppShell() {
               key={n.view}
               onClick={() => setView(n.view)}
               className={`rounded-lg px-3 py-1.5 text-sm font-medium transition ${
-                active === n.view
-                  ? 'bg-cafe text-white'
-                  : 'text-[#2B2420] hover:bg-latte/15 dark:text-[#F2EDE6]'
+                active === n.view ? 'bg-brand text-brand-ink' : 'text-fg hover:bg-surface2'
               }`}
             >
-              <span className="mr-1">{n.icon}</span>
+              <span className="mr-1.5">{n.icon}</span>
               {n.label}
             </button>
           ))}
         </nav>
 
-        <div className="ml-auto flex items-center gap-3">
+        <div className="ml-auto flex items-center gap-2.5">
           <OfflineBadge />
           <button
             onClick={toggleTheme}
             title="Cambiar tema"
-            className="rounded-lg border border-latte/40 px-2.5 py-1.5 text-sm"
+            className="rounded-lg border border-line px-2.5 py-1.5 text-sm transition hover:bg-surface2"
           >
-            {theme === 'dark' ? '☀️' : '🌙'}
+            {theme === 'dark' ? '☀' : '☾'}
           </button>
-          <span className="hidden text-sm text-[#2B2420] dark:text-[#F2EDE6] sm:inline">
-            {user?.nombre} · <span className="text-[#8A7F75]">{user?.role}</span>
+          <span className="hidden text-sm text-fg sm:inline">
+            {user?.nombre} · <span className="text-muted">{rolLabel(user?.role)}</span>
           </span>
           <button
             onClick={logout}
-            className="rounded-lg border border-latte/40 px-3 py-1.5 text-sm font-medium text-cafe dark:text-latte"
+            className="rounded-lg border border-line px-3 py-1.5 text-sm font-medium text-fg transition hover:bg-surface2"
           >
             Salir
           </button>
@@ -69,4 +67,15 @@ export function AppShell() {
       </div>
     </div>
   );
+}
+
+function rolLabel(role?: Role): string {
+  const map: Record<string, string> = {
+    OWNER: 'Dueño',
+    ADMIN: 'Administrador',
+    CASHIER: 'Cajero',
+    BARISTA: 'Barista',
+    CUSTOMER: 'Cliente',
+  };
+  return role ? map[role] ?? role : '';
 }

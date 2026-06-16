@@ -2,8 +2,43 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ── Identidad POSCOFFE ─────────────────────────────────────────────
+   Tinta de tostaduría (superficies) · matcha/eucalipto (marca) ·
+   crema ámbar (acento). Números en monoespaciado = la firma del oficio. */
 :root {
-  color-scheme: light dark;
+  --bg: 245 244 241; /* papel frío (no crema) */
+  --surface: 255 255 255;
+  --surface-2: 236 234 229;
+  --fg: 33 28 24;
+  --muted: 124 115 107;
+  --line: 226 222 215;
+
+  --brand: 31 110 90; /* matcha/eucalipto */
+  --brand-ink: 255 255 255; /* texto sobre marca */
+  --accent: 232 154 44; /* crema ámbar */
+  --exito: 47 165 106;
+  --alerta: 224 165 46;
+  --peligro: 229 84 75;
+
+  color-scheme: light;
+}
+
+.dark {
+  --bg: 26 22 19; /* tinta de tostaduría */
+  --surface: 34 29 25;
+  --surface-2: 43 37 33;
+  --fg: 242 238 232;
+  --muted: 163 154 143;
+  --line: 53 46 40;
+
+  --brand: 62 155 130; /* matcha más luminoso en oscuro */
+  --brand-ink: 17 24 21;
+  --accent: 240 168 60;
+  --exito: 63 190 130;
+  --alerta: 242 188 76;
+  --peligro: 232 100 100;
+
+  color-scheme: dark;
 }
 
 html,
@@ -14,6 +49,33 @@ body,
 
 body {
   margin: 0;
-  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  font-family: Inter, system-ui, sans-serif;
+  background: rgb(var(--bg));
+  color: rgb(var(--fg));
   -webkit-font-smoothing: antialiased;
+}
+
+@layer components {
+  .input {
+    @apply w-full rounded-lg border border-line bg-surface px-3 py-2.5 text-fg outline-none transition placeholder:text-muted focus:border-brand;
+  }
+}
+
+/* Cifras tabulares para precios, gramos y tiempos. */
+.tnum {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' 1;
+}
+
+/* Foco visible y accesible. */
+:focus-visible {
+  outline: 2px solid rgb(var(--brand));
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }

@@ -27,19 +27,19 @@ export function CustomerBar() {
 
   if (clienteId) {
     return (
-      <div className="flex flex-wrap items-center gap-3 border-b border-latte/30 bg-latte/10 px-4 py-2 text-sm">
-        <span className="font-semibold text-cafe dark:text-latte">👤 {clienteNombre}</span>
+      <div className="flex flex-wrap items-center gap-3 border-b border-line bg-brand/8 px-4 py-2 text-sm">
+        <span className="font-semibold text-brand">👤 {clienteNombre}</span>
         {reco?.habitual && (
-          <span className="text-[#8A7F75]">
-            Habitual: <b className="text-[#2B2420] dark:text-[#F2EDE6]">{reco.habitual.nombre}</b>
+          <span className="text-muted">
+            Habitual: <b className="text-fg">{reco.habitual.nombre}</b>
           </span>
         )}
         {reco?.sugerenciaNueva && (
-          <span className="rounded-full bg-caramelo/15 px-2 py-0.5 text-caramelo">
+          <span className="rounded-full bg-accent/15 px-2.5 py-0.5 font-medium text-accent">
             Prueba: {reco.sugerenciaNueva.nombre}
           </span>
         )}
-        <button onClick={() => setCliente(null)} className="ml-auto text-xs text-peligro">
+        <button onClick={() => setCliente(null)} className="ml-auto text-xs text-muted hover:text-peligro">
           Quitar cliente
         </button>
       </div>
@@ -47,17 +47,17 @@ export function CustomerBar() {
   }
 
   return (
-    <div className="flex items-center gap-2 border-b border-latte/30 px-4 py-2">
+    <div className="flex items-center gap-2 border-b border-line px-4 py-2">
       <input
         value={telefono}
         onChange={(e) => setTelefono(e.target.value)}
         onKeyDown={(e) => e.key === 'Enter' && identificar()}
         placeholder="Teléfono del cliente"
-        className="w-48 rounded-lg border border-latte/40 px-3 py-1.5 text-sm outline-none focus:border-cafe dark:bg-espresso dark:text-[#F2EDE6]"
+        className="input max-w-[12rem] py-1.5"
       />
       <button
         onClick={identificar}
-        className="rounded-lg bg-cafe px-3 py-1.5 text-sm font-medium text-white"
+        className="rounded-lg bg-brand px-3 py-1.5 text-sm font-medium text-brand-ink transition hover:brightness-110"
       >
         Identificar
       </button>

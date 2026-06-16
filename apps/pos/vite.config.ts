@@ -12,8 +12,8 @@ export default defineConfig({
         name: 'POSCOFFE',
         short_name: 'POSCOFFE',
         description: 'POS inteligente para cafeterías',
-        theme_color: '#6F4E37',
-        background_color: '#FAF7F2',
+        theme_color: '#1F6E5A',
+        background_color: '#F5F4F1',
         display: 'standalone',
         icons: [
           { src: 'favicon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any' },

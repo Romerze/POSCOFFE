@@ -46,7 +46,6 @@ export function CashierScreen() {
           modificadorIds: it.modificadorIds,
         })),
       });
-      // Paga el total ya con descuento de promociones (calculado por el server).
       await api.addPayment(order.id, { metodo, monto: Number(order.total) });
       cart.clear();
       setToast(`Venta cobrada · S/${Number(order.total).toFixed(2)}`);
@@ -64,44 +63,53 @@ export function CashierScreen() {
       <CustomerBar />
 
       <div className="flex min-h-0 flex-1 flex-col overflow-hidden sm:flex-row">
-        {/* Catálogo */}
         <main className="flex-1 overflow-y-auto p-4">
           {!localId ? (
-            <p className="text-[#8A7F75]">Sin local asignado.</p>
+            <p className="text-muted">Sin local asignado.</p>
           ) : isLoading ? (
             <CatalogSkeleton />
           ) : porCategoria.length === 0 ? (
-            <div className="mt-10 text-center text-[#8A7F75]">
+            <div className="mt-12 text-center text-muted">
               <p className="text-4xl">🗒️</p>
               <p className="mt-2">No hay productos. Cárgalos desde administración o el seed.</p>
             </div>
           ) : (
             porCategoria.map(([cat, items]) => (
-              <section key={cat} className="mb-6">
-                <h2 className="mb-3 text-sm font-bold uppercase tracking-wide text-[#8A7F75]">{cat}</h2>
+              <section key={cat} className="mb-7">
+                <h2 className="mb-3 font-display text-sm font-bold uppercase tracking-wider text-muted">
+                  {cat}
+                </h2>
                 <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
-                  {items.map((p) => (
-                    <button
-                      key={p.id}
-                      onClick={() => setOpenProductId(p.id)}
-                      className="flex h-24 flex-col justify-between rounded-xl bg-white p-3 text-left shadow-sm transition hover:shadow-md active:scale-95 dark:bg-[#262019]"
-                    >
-                      <span className="font-semibold text-[#2B2420] dark:text-[#F2EDE6]">{p.nombre}</span>
-                      <span className="text-sm text-cafe dark:text-latte">
-                        {p.variantes.length
-                          ? `desde S/${Math.min(...p.variantes.map((v) => Number(v.precio))).toFixed(2)}`
-                          : 'sin precio'}
-                      </span>
-                    </button>
-                  ))}
+                  {items.map((p) => {
+                    const desde = p.variantes.length
+                      ? Math.min(...p.variantes.map((v) => Number(v.precio)))
+                      : null;
+                    return (
+                      <button
+                        key={p.id}
+                        onClick={() => setOpenProductId(p.id)}
+                        className="group flex h-28 flex-col justify-between rounded-xl border border-line bg-surface p-3.5 text-left shadow-soft transition hover:border-brand hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]"
+                      >
+                        <span className="font-display font-semibold leading-tight text-fg">{p.nombre}</span>
+                        <span className="text-sm text-muted">
+                          {desde !== null ? (
+                            <>
+                              desde <span className="font-mono tnum text-brand">S/{desde.toFixed(2)}</span>
+                            </>
+                          ) : (
+                            'sin precio'
+                          )}
+                        </span>
+                      </button>
+                    );
+                  })}
                 </div>
               </section>
             ))
           )}
         </main>
 
-        {/* Ticket */}
-        <div className="border-t border-latte/30 sm:border-l sm:border-t-0">
+        <div className="border-t border-line sm:border-l sm:border-t-0">
           <Ticket localId={localId} onCobrar={cobrar} cobrando={cobrando} />
         </div>
       </div>
@@ -111,7 +119,7 @@ export function CashierScreen() {
       )}
 
       {toast && (
-        <div className="fixed bottom-6 left-1/2 z-30 -translate-x-1/2 rounded-full bg-exito px-6 py-3 font-medium text-white shadow-lg">
+        <div className="fixed bottom-6 left-1/2 z-30 -translate-x-1/2 rounded-full bg-exito px-6 py-3 font-medium text-white shadow-lift">
           {toast}
         </div>
       )}
@@ -123,7 +131,7 @@ function CatalogSkeleton() {
   return (
     <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
       {Array.from({ length: 8 }).map((_, i) => (
-        <div key={i} className="h-24 animate-pulse rounded-xl bg-latte/15" />
+        <div key={i} className="h-28 animate-pulse rounded-xl bg-surface2" />
       ))}
     </div>
   );
