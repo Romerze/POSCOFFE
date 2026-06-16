@@ -561,6 +561,19 @@ model Devolucion {
   @@map("devolucion")
 }
 
+model Encuesta {
+  id         String   @id @default(uuid())
+  pedidoId   String   @unique @map("pedido_id") // una encuesta por pedido
+  localId    String   @map("local_id")
+  clienteId  String?  @map("cliente_id")
+  puntaje    Int // 1..5 (1 mala — 5 excelente)
+  comentario String?
+  fecha      DateTime @default(now())
+
+  @@index([localId])
+  @@map("encuesta")
+}
+
 model DevolucionDetalle {
   id              String @id @default(uuid())
   devolucionId    String @map("devolucion_id")
