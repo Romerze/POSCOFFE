@@ -400,6 +400,7 @@ model Cliente {
   movPuntos     MovimientoPuntos[]
   suscripciones Suscripcion[]
   pedidos       Pedido[]
+  retosProgreso RetoProgreso[]
 
   @@map("cliente")
 }
@@ -559,6 +560,41 @@ model Devolucion {
 
   @@index([pedidoId])
   @@map("devolucion")
+}
+
+model Reto {
+  id               String   @id @default(uuid())
+  localId          String?  @map("local_id") // null = global
+  nombre           String
+  descripcion      String?
+  tipo             String // visitas | gasto
+  objetivo         Decimal  @db.Decimal(10, 2)
+  periodoDias      Int      @map("periodo_dias")
+  recompensaPuntos Int      @map("recompensa_puntos")
+  insignia         String // emoji/etiqueta de la insignia otorgada
+  activo           Boolean  @default(true)
+
+  progresos RetoProgreso[]
+
+  @@index([localId])
+  @@map("reto")
+}
+
+model RetoProgreso {
+  id               String    @id @default(uuid())
+  retoId           String    @map("reto_id")
+  clienteId        String    @map("cliente_id")
+  progreso         Decimal   @default(0) @db.Decimal(10, 2)
+  periodoInicio    DateTime  @default(now()) @map("periodo_inicio")
+  completados      Int       @default(0) // veces que se completó (insignias ganadas)
+  ultimoCompletado DateTime? @map("ultimo_completado")
+
+  reto    Reto    @relation(fields: [retoId], references: [id], onDelete: Cascade)
+  cliente Cliente @relation(fields: [clienteId], references: [id], onDelete: Cascade)
+
+  @@unique([retoId, clienteId])
+  @@index([clienteId])
+  @@map("reto_progreso")
 }
 
 model Encuesta {

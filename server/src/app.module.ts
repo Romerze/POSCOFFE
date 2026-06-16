@@ -17,6 +17,7 @@ import { QrModule } from './qr/qr.module';
 import { SubscriptionsModule } from './subscriptions/subscriptions.module';
 import { RefundsModule } from './refunds/refunds.module';
 import { SurveysModule } from './surveys/surveys.module';
+import { GamificationModule } from './gamification/gamification.module';
 import { HealthModule } from './health/health.module';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { RolesGuard } from './common/guards/roles.guard';
@@ -40,6 +41,7 @@ import { RolesGuard } from './common/guards/roles.guard';
     SubscriptionsModule,
     RefundsModule,
     SurveysModule,
+    GamificationModule,
     HealthModule,
   ],
   providers: [
