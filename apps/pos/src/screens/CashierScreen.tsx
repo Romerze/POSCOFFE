@@ -7,6 +7,7 @@ import { useLocalId } from '../hooks/useLocalId';
 import { ProductModal } from '../components/ProductModal';
 import { Ticket } from '../components/Ticket';
 import { CustomerBar } from '../components/CustomerBar';
+import { productImage } from '../lib/img';
 import type { Producto } from '../types';
 
 export function CashierScreen() {
@@ -93,16 +94,27 @@ function ProductCard({ producto, onClick }: { producto: Producto; onClick: () =>
   return (
     <button
       onClick={onClick}
-      className="group relative flex h-32 flex-col justify-between overflow-hidden rounded-xl border border-line bg-surface p-4 text-left shadow-soft transition hover:-translate-y-0.5 hover:border-cherry/40 active:translate-y-0"
+      className="group flex flex-col overflow-hidden rounded-xl border border-line bg-surface text-left shadow-soft transition hover:-translate-y-0.5 hover:shadow-lift active:translate-y-0"
     >
-      <span className="absolute inset-x-0 top-0 h-0.5 origin-left scale-x-0 bg-honey transition-transform duration-200 group-hover:scale-x-100" />
-      <div className="flex items-start justify-between gap-2">
-        <span className="font-display text-[1.05rem] font-bold leading-tight text-fg">{producto.nombre}</span>
-        {producto.esCombo && <span className="rounded-full bg-honey/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-honey">combo</span>}
+      <div className="relative h-28 overflow-hidden">
+        <img
+          src={productImage(producto.nombre, producto.imagen)}
+          alt=""
+          loading="lazy"
+          className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
+        />
+        {producto.esCombo && (
+          <span className="absolute left-2 top-2 rounded-full bg-honey px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[rgb(28_31_21)] shadow">
+            Combo
+          </span>
+        )}
       </div>
-      <span className="text-sm text-muted">
-        {desde !== null ? <>desde <span className="font-mono tnum font-semibold text-cherry">S/{desde.toFixed(2)}</span></> : 'sin precio'}
-      </span>
+      <div className="flex items-center justify-between gap-2 px-3.5 py-2.5">
+        <span className="font-display text-[1.05rem] font-bold leading-tight text-fg">{producto.nombre}</span>
+        {desde !== null && (
+          <span className="shrink-0 text-sm font-semibold tnum text-cherry">S/{desde.toFixed(2)}</span>
+        )}
+      </div>
     </button>
   );
 }
@@ -110,7 +122,7 @@ function ProductCard({ producto, onClick }: { producto: Producto; onClick: () =>
 function Skeleton() {
   return (
     <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-4">
-      {Array.from({ length: 8 }).map((_, i) => <div key={i} className="h-32 animate-pulse rounded-xl bg-surface2" />)}
+      {Array.from({ length: 8 }).map((_, i) => <div key={i} className="h-44 animate-pulse rounded-xl bg-surface2" />)}
     </div>
   );
 }

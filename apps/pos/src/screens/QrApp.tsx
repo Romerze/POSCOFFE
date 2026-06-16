@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '../lib/api';
+import { productImage } from '../lib/img';
 import type { CartItem, Modificador, Producto, Variante } from '../types';
 
 export function QrApp({ localId, mesa }: { localId: string; mesa?: string }) {
@@ -43,9 +44,10 @@ export function QrApp({ localId, mesa }: { localId: string; mesa?: string }) {
               {items.map((p) => {
                 const desde = p.variantes.length ? Math.min(...p.variantes.map((v) => Number(v.precio))) : null;
                 return (
-                  <button key={p.id} onClick={() => setOpenId(p.id)} className="card flex w-full items-center justify-between p-4 text-left active:scale-[0.99]">
-                    <div><div className="font-display font-bold text-fg">{p.nombre}</div>{p.descripcion && <div className="text-xs text-muted">{p.descripcion}</div>}</div>
-                    {desde !== null && <span className="font-mono tnum text-sm font-semibold text-cherry">S/{desde.toFixed(2)}</span>}
+                  <button key={p.id} onClick={() => setOpenId(p.id)} className="card flex w-full items-center gap-3 overflow-hidden p-2.5 text-left active:scale-[0.99]">
+                    <img src={productImage(p.nombre, p.imagen)} alt="" loading="lazy" className="h-16 w-16 shrink-0 rounded-lg object-cover" />
+                    <div className="min-w-0 flex-1"><div className="font-display font-bold text-fg">{p.nombre}</div>{p.descripcion && <div className="truncate text-xs text-muted">{p.descripcion}</div>}</div>
+                    {desde !== null && <span className="shrink-0 text-sm font-semibold tnum text-cherry">S/{desde.toFixed(2)}</span>}
                   </button>
                 );
               })}

@@ -2,49 +2,49 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ── POSCOFFE · "La barra del tostador" ──────────────────────────────
-   Cereza de café (marca granate) · miel/crema (acento) · espresso · porcelana.
-   Datos en monoespaciado; titulares en Bricolage Grotesque. */
+/* ── POSCOFFE · estilo "tostaduría" ──────────────────────────────────
+   Verde oliva/bosque (marca) · crema (fondo) · dorado/latón (acento).
+   Titulares en serif (Playfair Display); cifras tabulares. */
 :root {
-  --paper: 241 235 225;
-  --surface: 252 249 243;
-  --surface-2: 234 226 213;
-  --fg: 26 20 17;
-  --muted: 122 110 99;
-  --line: 224 214 200;
+  --paper: 242 236 223;     /* crema */
+  --surface: 251 248 240;   /* blanco cálido */
+  --surface-2: 235 228 213;
+  --fg: 42 37 30;           /* marrón muy oscuro */
+  --muted: 138 128 110;
+  --line: 224 215 197;
 
-  --cherry: 166 54 46;
-  --cherry-ink: 250 245 238;
-  --honey: 197 132 44;
-  --pine: 47 107 79;
-  --danger: 198 71 59;
+  --cherry: 67 84 47;       /* === marca: verde oliva/bosque === */
+  --cherry-ink: 246 242 232;/* texto sobre marca (crema) */
+  --honey: 178 142 72;      /* dorado/latón (acento) */
+  --pine: 90 122 60;        /* verde claro (éxito) */
+  --danger: 173 74 52;      /* terracota/ladrillo (alerta) */
 
-  --bar: 24 17 13;
-  --bar-fg: 240 232 222;
-  --bar-muted: 150 134 120;
-  --bar-line: 50 40 33;
+  --bar: 54 67 43;          /* barra: verde oliva profundo */
+  --bar-fg: 243 239 228;
+  --bar-muted: 173 178 150;
+  --bar-line: 73 87 58;
 
   color-scheme: light;
 }
 
 .dark {
-  --paper: 24 19 16;
-  --surface: 33 26 22;
-  --surface-2: 44 36 30;
-  --fg: 243 237 228;
-  --muted: 165 152 139;
-  --line: 52 43 36;
+  --paper: 26 28 21;        /* oliva carbón */
+  --surface: 33 36 27;
+  --surface-2: 43 47 35;
+  --fg: 240 236 224;
+  --muted: 163 156 137;
+  --line: 58 64 46;
 
-  --cherry: 201 84 73;
-  --cherry-ink: 26 17 14;
-  --honey: 218 159 66;
-  --pine: 86 162 124;
-  --danger: 226 104 92;
+  --cherry: 158 178 110;    /* oliva claro/salvia para contraste en oscuro */
+  --cherry-ink: 28 31 21;
+  --honey: 200 166 94;
+  --pine: 138 173 100;
+  --danger: 210 110 84;
 
-  --bar: 18 13 10;
-  --bar-fg: 240 232 222;
-  --bar-muted: 150 134 120;
-  --bar-line: 46 37 31;
+  --bar: 22 26 17;
+  --bar-fg: 240 236 224;
+  --bar-muted: 150 156 130;
+  --bar-line: 49 56 38;
 
   color-scheme: dark;
 }

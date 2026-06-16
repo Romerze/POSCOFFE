@@ -16,6 +16,7 @@ export interface Producto {
   id: string;
   nombre: string;
   descripcion?: string | null;
+  imagen?: string | null;
   categoriaId: string;
   esCombo: boolean;
   variantes: Variante[];
