@@ -93,6 +93,10 @@ Ver [modelo de datos](07-modelo-datos.md) (entidades, relaciones y SQL del núcl
 
 ## 10.6 Endpoints principales (REST `/api/v1`)
 
+> 📌 **La referencia completa y al día de los endpoints implementados está en
+> [docs/11-api-reference.md](11-api-reference.md)** (generada del código). Lo de
+> abajo es el plan original de la fase de diseño.
+
 ```
 # Auth
 POST   /auth/login                 POST /auth/refresh        POST /auth/pin

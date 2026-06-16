@@ -50,6 +50,7 @@ La propuesta completa está en [`docs/`](docs/):
 | 08 | [Reglas de negocio](docs/08-reglas-negocio.md) | Precios, stock, fidelización, caja, etc. |
 | 09 | [MVP y roadmap](docs/09-mvp-roadmap.md) | Fases, tiempos y riesgos |
 | 10 | [Entregables técnicos](docs/10-entregables.md) | Historias, casos de uso, backlog, endpoints, plan de pruebas |
+| 11 | [Referencia de API](docs/11-api-reference.md) | **Catálogo completo y al día de endpoints REST + WebSocket** |
 
 ---
 
