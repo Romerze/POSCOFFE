@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-export type View = 'caja' | 'kds' | 'insights';
+export type View = 'caja' | 'kds' | 'insights' | 'admin';
 export type Theme = 'light' | 'dark';
 
 interface UiState {

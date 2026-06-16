@@ -5,11 +5,13 @@ import { OfflineBadge } from './OfflineBadge';
 import { CashierScreen } from '../screens/CashierScreen';
 import { KdsScreen } from '../screens/KdsScreen';
 import { InsightsScreen } from '../screens/InsightsScreen';
+import { AdminScreen } from '../screens/AdminScreen';
 
 const NAV: { view: View; label: string; icon: string; roles: Role[] }[] = [
   { view: 'caja', label: 'Caja', icon: '🧾', roles: ['OWNER', 'ADMIN', 'CASHIER'] },
   { view: 'kds', label: 'Barra', icon: '👨‍🍳', roles: ['OWNER', 'ADMIN', 'BARISTA'] },
   { view: 'insights', label: 'Insights', icon: '📊', roles: ['OWNER', 'ADMIN'] },
+  { view: 'admin', label: 'Gestión', icon: '⚙️', roles: ['OWNER', 'ADMIN'] },
 ];
 
 export function AppShell() {
@@ -64,6 +66,7 @@ export function AppShell() {
         {active === 'caja' && <CashierScreen />}
         {active === 'kds' && <KdsScreen />}
         {active === 'insights' && <InsightsScreen />}
+        {active === 'admin' && <AdminScreen />}
       </div>
     </div>
   );
